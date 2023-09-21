@@ -1,0 +1,77 @@
+#include <App.h>
+
+#include <mc_rtc/Configuration.h>
+
+#include <fstream>
+#include <variant>
+
+#include "Base64.h"
+
+/* Note that uWS::SSLApp({options}) is the same as uWS::App() when compiled without SSL support */
+
+using PerSocketData = std::monostate;
+static constexpr bool use_ssl = false;
+static constexpr bool is_server = true;
+using WebSocket = uWS::WebSocket<use_ssl, is_server, PerSocketData>;
+
+int main()
+{
+  uWS::App::WebSocketBehavior<PerSocketData> behavior;
+
+  // Set maxBackpressure = 0 so that uWS does *not* drop any messages due to
+  // back pressure.
+  behavior.maxBackpressure = 0;
+  behavior.open = [](WebSocket * ws) { ws->subscribe("all"); };
+  behavior.message = [](WebSocket * ws, std::string_view message, uWS::OpCode opCode)
+  {
+    // FIXME Need a string_view constructor
+    auto cfg = mc_rtc::Configuration::fromData(std::string(message));
+    std::string request = cfg("request", std::string(""));
+    if(request == "getMesh")
+    {
+      std::ifstream ifs("/home/gergondet/head.gltf");
+      std::string msg = {std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
+      mc_rtc::Configuration out;
+      out.add("response", "getMesh");
+      out.add("data", macaron::Base64::Encode(msg));
+      ws->send(out.dump(), uWS::OpCode::TEXT);
+    }
+  };
+
+  std::string content_;
+  /* Overly simple hello world app */
+  uWS::App({.key_file_name = "misc/key.pem", .cert_file_name = "misc/cert.pem", .passphrase = "1234"})
+      .get("/",
+           [&content_](uWS::HttpResponse<false> * res, uWS::HttpRequest * req)
+           {
+             std::cout << "Requested: " << req->getUrl() << "\n";
+             std::ifstream ifs("/home/gergondet/devel/sandbox/mc_rtc-webui/data/index.html");
+             content_ = {std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
+             res->end(content_);
+           })
+      .get("/main.js",
+           [&content_](uWS::HttpResponse<false> * res, auto * /*req*/)
+           {
+             std::ifstream ifs("/home/gergondet/devel/sandbox/mc_rtc-webui/data/main.js");
+             content_ = {std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
+             res->writeHeader("Content-Type", "text/javascript; charset=utf-8");
+             res->end(content_);
+           })
+      .get("/models/*",
+           [&content_](uWS::HttpResponse<false> * res, uWS::HttpRequest * req)
+           {
+             std::cout << "Requested: " << req->getUrl() << "\n";
+             std::ifstream ifs("/home/gergondet/devel/sandbox/mc_rtc-webui/build/" + std::string(req->getUrl()));
+             content_ = {std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
+             res->end(content_);
+           })
+      .ws<PerSocketData>("/*", std::move(behavior))
+      .listen(8080,
+              [](auto * listen_socket)
+              {
+                if(listen_socket) { std::cout << "Listening on port " << 8080 << std::endl; }
+              })
+      .run();
+
+  std::cout << "Failed to listen on port 8080" << std::endl;
+}
