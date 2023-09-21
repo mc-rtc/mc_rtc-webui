@@ -1,0 +1,24 @@
+{
+  "name": "mc-rtc-ts",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build && cp dist/main.js ../data/main.js",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/three": "^0.156.0",
+    "typescript": "^5.2.2",
+    "vite": "^4.4.5"
+  },
+  "dependencies": {
+    "@zhobo63/imgui-ts": "^0.1.41",
+    "three": "^0.156.1"
+  }
+}
