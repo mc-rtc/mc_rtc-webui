@@ -37,30 +37,27 @@ async function init() {
   addShadowedLight(1, 1, 1, 0xffffff, 3.5);
   addShadowedLight(0.5, 1, - 1, 0xffd500, 3);
 
+  ImGui_Impl.setCanvasScale(1.0);
   ImGui_Impl.Init(canvas);
 
   function animate(time: DOMHighResTimeStamp) {
-    // ImGui_Impl.NewFrame(time);
-    // ImGui.NewFrame();
-
-    // ImGui.SetNextWindowPos(new ImGui.ImVec2(20, 20), ImGui.Cond.FirstUseEver);
-    // ImGui.SetNextWindowSize(new ImGui.ImVec2(300, 150), ImGui.Cond.FirstUseEver);
-    // ImGui.Begin("mc_rtc");
-    // ImGui.Text(`Hello at time ${time}`);
-    // ImGui.Text(`Want WantCaptureKeyboard: ${ImGui.GetIO().WantCaptureKeyboard}`);
-    // ImGui.Text(`Want WantCaptureMouse: ${ImGui.GetIO().WantCaptureMouse}`);
-    // ImGui.End();
-    // ImGui.EndFrame();
-
-    // ImGui.Render();
+    ImGui_Impl.NewFrame(time);
+    ImGui.NewFrame();
+    ImGui.Begin("mc_rtc");
+    ImGui.Text(`Hello at time ${time}`);
+    ImGui.Text(`Want WantCaptureKeyboard: ${ImGui.GetIO().WantCaptureKeyboard}`);
+    ImGui.Text(`Want WantCaptureMouse: ${ImGui.GetIO().WantCaptureMouse}`);
+    ImGui.End();
+    ImGui.EndFrame();
+    ImGui.Render();
 
     controls.enabled = !ImGui.GetIO().WantCaptureMouse;
 
     renderer.render(scene, camera);
 
-    // ImGui_Impl.RenderDrawData(ImGui.GetDrawData());
+    ImGui_Impl.RenderDrawData(ImGui.GetDrawData());
 
-    // renderer.state.reset();
+    renderer.state.reset();
 
     window.requestAnimationFrame(animate);
   }
