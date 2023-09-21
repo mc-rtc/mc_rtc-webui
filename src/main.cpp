@@ -29,7 +29,7 @@ int main()
     std::string request = cfg("request", std::string(""));
     if(request == "getMesh")
     {
-      std::ifstream ifs("/home/gergondet/head.gltf");
+      std::ifstream ifs("/home/gergondet/devel/sandbox/mc_rtc-webui/build/models/head.gltf");
       std::string msg = {std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
       mc_rtc::Configuration out;
       out.add("response", "getMesh");
