@@ -1,13 +1,52 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { ColladaLoader } from 'three/examples/jsm/loaders/ColladaLoader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
 import { ImGui, ImGui_Impl } from '@zhobo63/imgui-ts';
+import { unpack } from 'msgpackr/unpack';
 
-const scene : THREE.Scene = new THREE.Scene();
+import { ControllerClient } from './ControllerClient';
+
+const scene: THREE.Scene = new THREE.Scene();
+const socket = new WebSocket("ws://localhost:8080");
+const client = new ControllerClient(socket);
+
+async function initSocket() {
+  socket.binaryType = "arraybuffer";
+  socket.addEventListener("open", (event) => {
+    console.log(`Connect event: ${event}`);
+  });
+  socket.addEventListener("message", (event) => {
+    const response = JSON.parse(event.data);
+    switch (response.response) {
+      case 'getMesh':
+        const manager = new THREE.LoadingManager();
+        manager.setURLModifier((url) => {
+          if (url == "dummy") {
+            return `data:;base64,${response.data}`;
+          }
+          else {
+            return url;
+          }
+        });
+        const loader = new GLTFLoader(manager);
+        loader.load('dummy', (model) => {
+          console.log("ADD MODEL TO SCENE");
+          scene.add(model.scene);
+        });
+        break;
+      case 'getGUI':
+        const data = unpack(Uint8Array.from(atob(response.data), c => c.charCodeAt(0)));
+        client.update(data);
+        break;
+      default:
+        console.log(`Unkwnon response from server ${response.response}`);
+    };
+  });
+}
 
 async function init() {
+
+  await initSocket();
 
   await ImGui.default();
 
@@ -43,15 +82,21 @@ async function init() {
   function animate(time: DOMHighResTimeStamp) {
     ImGui_Impl.NewFrame(time);
     ImGui.NewFrame();
-    ImGui.Begin("mc_rtc");
+
+    ImGui.Begin("Sample");
     ImGui.Text(`Hello at time ${time}`);
     ImGui.Text(`Want WantCaptureKeyboard: ${ImGui.GetIO().WantCaptureKeyboard}`);
     ImGui.Text(`Want WantCaptureMouse: ${ImGui.GetIO().WantCaptureMouse}`);
     ImGui.End();
+
+    client.draw();
+
     ImGui.EndFrame();
     ImGui.Render();
 
     controls.enabled = !ImGui.GetIO().WantCaptureMouse;
+
+    client.draw3d();
 
     renderer.render(scene, camera);
 
@@ -83,39 +128,14 @@ async function init() {
     directionalLight.shadow.bias = - 0.002;
 
   }
+
+  const button_model = document.getElementById('button-model');
+  button_model.onclick = () => {
+    socket.send(JSON.stringify({ "request": "getMesh", "uri": "default" }));
+  };
+
+  document.getElementById('button-data').onclick = () => {
+    socket.send(JSON.stringify({ 'request': 'getGUI' }));
+  };
 }
 init();
-
-const socket = new WebSocket("ws://localhost:8080");
-socket.binaryType = "arraybuffer";
-socket.addEventListener("open", (event) => {
-  console.log(`Connect event: ${event}`);
-});
-socket.addEventListener("message", (event) => {
-  const response = JSON.parse(event.data);
-  switch (response.response) {
-    case 'getMesh':
-      const manager = new THREE.LoadingManager();
-      manager.setURLModifier((url) => {
-        if (url == "dummy") {
-          return `data:;base64,${response.data}`;
-        }
-        else {
-          return url;
-        }
-      });
-      const loader = new GLTFLoader(manager);
-      loader.load('dummy', (model) => {
-        console.log("ADD MODEL TO SCENE");
-        scene.add(model.scene);
-      });
-      break;
-    default:
-      console.log(`Unkwnon response from server ${response.response}`);
-  };
-});
-
-const button_model = document.getElementById('button-model');
-button_model.onclick = () => {
-  socket.send(JSON.stringify({ "request": "getMesh", "uri": "default" }));
-};

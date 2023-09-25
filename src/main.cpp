@@ -6,6 +6,7 @@
 #include <variant>
 
 #include "Base64.h"
+#include "TestServer.h"
 
 /* Note that uWS::SSLApp({options}) is the same as uWS::App() when compiled without SSL support */
 
@@ -17,12 +18,15 @@ using WebSocket = uWS::WebSocket<use_ssl, is_server, PerSocketData>;
 int main()
 {
   uWS::App::WebSocketBehavior<PerSocketData> behavior;
+  TestServer server;
+  server.builder.addElement({}, mc_rtc::gui::Button("Hello world", []() { mc_rtc::log::critical("HELLO WORLD!"); }));
+  server.publish();
 
   // Set maxBackpressure = 0 so that uWS does *not* drop any messages due to
   // back pressure.
   behavior.maxBackpressure = 0;
   behavior.open = [](WebSocket * ws) { ws->subscribe("all"); };
-  behavior.message = [](WebSocket * ws, std::string_view message, uWS::OpCode opCode)
+  behavior.message = [&](WebSocket * ws, std::string_view message, uWS::OpCode opCode)
   {
     // FIXME Need a string_view constructor
     auto cfg = mc_rtc::Configuration::fromData(std::string(message));
@@ -36,6 +40,23 @@ int main()
       out.add("data", macaron::Base64::Encode(msg));
       ws->send(out.dump(), uWS::OpCode::TEXT);
     }
+    else if(request == "getGUI")
+    {
+      mc_rtc::Configuration out;
+      out.add("response", "getGUI");
+      const auto & [data, size] = server.server.data();
+      out.add("data", macaron::Base64::Encode(data, size));
+      ws->send(out.dump(), uWS::OpCode::TEXT);
+    }
+    else if(request == "requestGUI")
+    {
+      auto data = cfg("data");
+      std::vector<std::string> category = data("category");
+      std::string name = data("name");
+      auto payload = data("payload", mc_rtc::Configuration{});
+      server.builder.handleRequest(category, name, payload);
+    }
+    else { mc_rtc::log::critical("Unknown request: {}", request); }
   };
 
   std::string content_;
