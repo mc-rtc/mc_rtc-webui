@@ -24,6 +24,10 @@ int main()
   server.builder.addElement({}, mc_rtc::gui::Label("Time", t_));
   server.builder.addElement({"Buttons"},
                             mc_rtc::gui::Button("Hello world", []() { mc_rtc::log::critical("HELLO WORLD!"); }));
+  server.builder.addElement({"Buttons", "Horizontal"}, mc_rtc::gui::ElementsStacking::Horizontal,
+                            mc_rtc::gui::Button("1", []() { mc_rtc::log::info("1"); }),
+                            mc_rtc::gui::Button("2", []() { mc_rtc::log::info("2"); }),
+                            mc_rtc::gui::Button("3", []() { mc_rtc::log::info("3"); }));
   server.builder.addElement({"Labels"}, mc_rtc::gui::Label("Hello", "world"),
                             mc_rtc::gui::ArrayLabel("Time", {"Minutes", "Seconds"},
                                                     [&]() -> std::array<double, 2>

@@ -52,8 +52,25 @@ export class Category extends Widget {
   }
 
   draw(rh: RequestHandler) {
-    for (const w of this.widgets) {
-      w.draw(rh);
+    for (let i = 0; i < this.widgets.length;) {
+      const w: Widget = this.widgets[i];
+      if (w.sid == -1) {
+        w.draw(rh);
+        ++i;
+      }
+      else {
+        let j = i + 1;
+        while (j < this.widgets.length && this.widgets[j].sid == w.sid) { ++j; }
+        ImGui.BeginTable(`${w.category}_table_${i}`, j - i, ImGui.ImGuiTableFlags.SizingStretchProp);
+        for (; i < j; ++i) {
+          ImGui.TableNextColumn();
+          this.widgets[i].draw(rh);
+        }
+        ImGui.EndTable();
+      }
+      if (i != this.widgets.length) {
+        ImGui.Separator();
+      }
     }
     if (this.subs.length) {
       ImGui.Indent();

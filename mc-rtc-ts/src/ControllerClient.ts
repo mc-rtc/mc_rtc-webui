@@ -83,7 +83,7 @@ export class ControllerClient {
       const widget_data: [string, number, number?, ...any] = data[i];
       const widget_name: string = widget_data[0];
       const widget_tid: number = widget_data[1];
-      const sid = widget_data[2] || -1;
+      const sid = widget_data[2] === null ? -1 : widget_data[2];
       switch (widget_tid) {
         case (Elements.Label):
           const label_str: string = widget_data[3];
@@ -94,7 +94,8 @@ export class ControllerClient {
           cat.getWidget(Button, [widget_name, sid]);
           break;
         default:
-          console.error(`Cannot handle widget type: ${widget_tid}`);
+          break;
+          // console.error(`Cannot handle widget type: ${widget_tid}`);
       }
     }
     let next_category: string[] = parent;
