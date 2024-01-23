@@ -30,7 +30,9 @@ export class Category extends Widget {
   getWidget<Type extends Widget>(T: Ctor<Type>, data: [name: string, sid: number, ...any]): Type {
     const wIdx = this.widgets.findIndex(w => w.name === data[0]);
     if (wIdx >= 0 && this.widgets[wIdx] instanceof T) {
-      return this.widgets[wIdx] as Type;
+      const widget : Type = this.widgets[wIdx] as Type;
+      widget.visited = true;
+      return widget;
     }
     else {
       if (wIdx >= 0) {

@@ -20,6 +20,7 @@
   "dependencies": {
     "@zhobo63/imgui-ts": "^0.1.41",
     "msgpackr": "^1.9.9",
+    "nanomsg-browser": "^0.2.1",
     "three": "^0.156.1"
   }
 }

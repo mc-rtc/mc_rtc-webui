@@ -1,4 +1,6 @@
 import { Button } from './Button';
+import { Label } from './Label';
+
 import { Category } from './Category';
 import { Elements } from './Elements';
 import { Request } from './Request';
@@ -9,16 +11,16 @@ import { ImGui } from '@zhobo63/imgui-ts';
 export class ControllerClient {
   root: Category = new Category([], "");
   data: object;
-  socket : WebSocket;
-  constructor(socket : WebSocket) {
+  socket: WebSocket;
+  constructor(socket: WebSocket) {
     this.socket = socket;
   }
-  sendRequest(req : Request) {
-    this.socket.send(JSON.stringify({"request": "requestGUI", "data": req}));
+  sendRequest(req: Request) {
+    this.socket.send(JSON.stringify({ "request": "requestGUI", "data": req }));
   }
   draw() {
     ImGui.Begin("mc_rtc");
-    this.root.draw((req:Request) => this.sendRequest(req));
+    this.root.draw((req: Request) => this.sendRequest(req));
     ImGui.End();
   }
   draw3d() {
@@ -70,14 +72,19 @@ export class ControllerClient {
     if (data.length < 2) {
       return;
     }
-    const cat : Category = this.getCategory([...parent, category]);
+    const cat: Category = this.getCategory([...parent, category]);
     for (let i = 1; i < data.length - 1; ++i) {
       const widget_data: [string, number, number?, ...any] = data[i];
       const widget_name: string = widget_data[0];
       const widget_tid: number = widget_data[1];
       const sid = widget_data[2] || -1;
-      switch(widget_tid) {
-        case(Elements.Button):
+      switch (widget_tid) {
+        case (Elements.Label):
+          const label_str: string = widget_data[3];
+          const label: Label = cat.getWidget(Label, [widget_name, sid]);
+          label.update(label_str);
+          break;
+        case (Elements.Button):
           cat.getWidget(Button, [widget_name, sid]);
           break;
         default:
