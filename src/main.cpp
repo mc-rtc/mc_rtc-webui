@@ -22,7 +22,15 @@ int main()
   TestServer server;
   double t_ = 0.0;
   server.builder.addElement({}, mc_rtc::gui::Label("Time", t_));
-  server.builder.addElement({}, mc_rtc::gui::Button("Hello world", []() { mc_rtc::log::critical("HELLO WORLD!"); }));
+  server.builder.addElement({"Buttons"},
+                            mc_rtc::gui::Button("Hello world", []() { mc_rtc::log::critical("HELLO WORLD!"); }));
+  server.builder.addElement({"Labels"}, mc_rtc::gui::Label("Hello", "world"),
+                            mc_rtc::gui::ArrayLabel("Time", {"Minutes", "Seconds"},
+                                                    [&]() -> std::array<double, 2>
+                                                    {
+                                                      size_t seconds = std::floor(t_);
+                                                      return {seconds / 60, seconds % 60};
+                                                    }));
   std::thread th(
       [&]()
       {

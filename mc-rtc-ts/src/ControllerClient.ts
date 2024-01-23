@@ -60,10 +60,16 @@ export class ControllerClient {
         ret = cat;
       }
       else {
-        ret.subs.push(new Category([...ret.category, ret.name], c));
+        if (ret.name.length) {
+          ret.subs.push(new Category([...ret.category, ret.name], c));
+        }
+        else {
+          ret.subs.push(new Category([], c));
+        }
         ret = ret.subs[ret.subs.length - 1];
       }
     }
+    ret.visited = true;
     return ret;
   }
 
@@ -90,6 +96,14 @@ export class ControllerClient {
         default:
           console.error(`Cannot handle widget type: ${widget_tid}`);
       }
+    }
+    let next_category: string[] = parent;
+    if (category.length) {
+      next_category.concat(category);
+    }
+    const cat_data: [...any] = data[data.length - 1];
+    for (let i = 0; i < cat_data.length; ++i) {
+      this.onCategory(next_category, cat_data[i][0], cat_data[i]);
     }
   }
 

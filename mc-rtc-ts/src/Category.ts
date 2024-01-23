@@ -1,3 +1,4 @@
+import { ImGui } from '@zhobo63/imgui-ts';
 import { RequestHandler } from './Request';
 import { Widget } from './Widget';
 
@@ -30,7 +31,7 @@ export class Category extends Widget {
   getWidget<Type extends Widget>(T: Ctor<Type>, data: [name: string, sid: number, ...any]): Type {
     const wIdx = this.widgets.findIndex(w => w.name === data[0]);
     if (wIdx >= 0 && this.widgets[wIdx] instanceof T) {
-      const widget : Type = this.widgets[wIdx] as Type;
+      const widget: Type = this.widgets[wIdx] as Type;
       widget.visited = true;
       return widget;
     }
@@ -38,28 +39,38 @@ export class Category extends Widget {
       if (wIdx >= 0) {
         this.widgets.splice(wIdx, 1);
       }
-      const widget_id = (() => {
-        if(this.name.length) {
-          return [...this.category, this.name];
+      const widget_category = (() => {
+        if (this.name.length) {
+          return this.category.concat(this.name);
         }
-        return [...this.category];
+        return this.category;
       })();
-      const out = new T(widget_id, ...data);
+      const out = new T(widget_category, ...data);
       this.widgets.push(out);
       return out;
     }
   }
 
-  draw(rh : RequestHandler) {
+  draw(rh: RequestHandler) {
     for (const w of this.widgets) {
       w.draw(rh);
     }
-    for (const c of this.subs) {
-      c.draw(rh);
+    if (this.subs.length) {
+      ImGui.Indent();
+      if (ImGui.BeginTabBar(this.name, ImGui.ImGuiTabBarFlags.Reorderable)) {
+        for (const c of this.subs) {
+          if (ImGui.BeginTabItem(c.name)) {
+            c.draw(rh);
+            ImGui.EndTabItem();
+          }
+        }
+        ImGui.EndTabBar();
+      }
+      ImGui.Unindent();
     }
   }
 
-  draw3d(rh : RequestHandler) {
+  draw3d(rh: RequestHandler) {
     for (const w of this.widgets.filter(w => w.draw3d)) {
       w.draw3d(rh);
     }
