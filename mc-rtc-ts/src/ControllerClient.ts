@@ -1,3 +1,4 @@
+import { ArrayLabel } from './ArrayLabel';
 import { Button } from './Button';
 import { Label } from './Label';
 
@@ -89,6 +90,10 @@ export class ControllerClient {
           const label_str: string = widget_data[3];
           const label: Label = cat.getWidget(Label, [widget_name, sid]);
           label.update(label_str);
+          break;
+        case (Elements.ArrayLabel):
+          const array_label : ArrayLabel = cat.getWidget(ArrayLabel, [widget_name, sid]);
+          array_label.update(widget_data[4] || [], widget_data[3]);
           break;
         case (Elements.Button):
           cat.getWidget(Button, [widget_name, sid]);

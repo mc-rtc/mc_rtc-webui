@@ -8,4 +8,7 @@ export class Widget {
   visited: boolean = true;
   draw?(request?: RequestHandler): void;
   draw3d?(request? : RequestHandler): void;
+  label(label: string, extra: string = "") : string {
+    return `${label}##${this.category}${this.name}${extra}`;
+  }
 }
