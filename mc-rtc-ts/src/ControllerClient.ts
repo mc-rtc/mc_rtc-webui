@@ -1,5 +1,6 @@
 import { ArrayLabel } from './ArrayLabel';
 import { Button } from './Button';
+import { Checkbox } from './Checkbox';
 import { Label } from './Label';
 
 import { Category } from './Category';
@@ -92,15 +93,19 @@ export class ControllerClient {
           label.update(label_str);
           break;
         case (Elements.ArrayLabel):
-          const array_label : ArrayLabel = cat.getWidget(ArrayLabel, [widget_name, sid]);
+          const array_label: ArrayLabel = cat.getWidget(ArrayLabel, [widget_name, sid]);
           array_label.update(widget_data[4] || [], widget_data[3]);
           break;
         case (Elements.Button):
           cat.getWidget(Button, [widget_name, sid]);
           break;
+        case (Elements.Checkbox):
+          const cbox: Checkbox = cat.getWidget(Checkbox, [widget_name, sid]);
+          cbox.update(widget_data[3]);
+          break;
         default:
           break;
-          // console.error(`Cannot handle widget type: ${widget_tid}`);
+        // console.error(`Cannot handle widget type: ${widget_tid}`);
       }
     }
     let next_category: string[] = parent;
