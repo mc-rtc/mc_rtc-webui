@@ -25,7 +25,7 @@ struct TestServer
     t_ += 0.005;
   }
 
-  mc_control::ControllerServer server{0.005, 0.05, {"ipc:///tmp/mc_rtc_pub.ipc"}, {"ipc:///tmp/mc_rtc_rep.ipc"}};
+  mc_control::ControllerServer server{0.005, 0.05, {"ws://*:8181"}, {"ws://*:8182"}};
   mc_rtc::gui::StateBuilder builder;
   double t_ = 0.0;
 

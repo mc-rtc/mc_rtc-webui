@@ -6,9 +6,27 @@ import { unpack } from 'msgpackr/unpack';
 
 import { ControllerClient } from './ControllerClient';
 
+import { Socket, Protocol } from 'nanomsg-browser';
+
 const scene: THREE.Scene = new THREE.Scene();
 const socket = new WebSocket("ws://localhost:8080");
 const client = new ControllerClient(socket);
+
+const client_socket = new Socket({protocol: Protocol.SUB, reconnectTime: 200, sendArrayBuffer: true, receiveArrayBuffer: true});
+client_socket.on('data', (msg) => {
+  const data = unpack(msg);
+  // Keep this around for debug?
+  // console.log('got =>', data);
+  client.update(data);
+});
+client_socket.on('error', (e) => {
+  client.update([]);
+  console.log('nanomsg error:', e);
+});
+client_socket.on('end', (url) => {
+  console.log('finished', url);
+});
+client_socket.connect('ws://localhost:8181');
 
 async function initSocket() {
   socket.binaryType = "arraybuffer";

@@ -17,10 +17,25 @@ using WebSocket = uWS::WebSocket<use_ssl, is_server, PerSocketData>;
 
 int main()
 {
+  std::mutex server_mutex;
   uWS::App::WebSocketBehavior<PerSocketData> behavior;
   TestServer server;
+  double t_ = 0.0;
+  server.builder.addElement({}, mc_rtc::gui::Label("Time", t_));
   server.builder.addElement({}, mc_rtc::gui::Button("Hello world", []() { mc_rtc::log::critical("HELLO WORLD!"); }));
-  server.publish();
+  std::thread th(
+      [&]()
+      {
+        while(true)
+        {
+          {
+            std::unique_lock<std::mutex> lck(server_mutex);
+            server.publish();
+            t_ += 0.005;
+          }
+          std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        }
+      });
 
   // Set maxBackpressure = 0 so that uWS does *not* drop any messages due to
   // back pressure.
@@ -44,8 +59,11 @@ int main()
     {
       mc_rtc::Configuration out;
       out.add("response", "getGUI");
-      const auto & [data, size] = server.server.data();
-      out.add("data", macaron::Base64::Encode(data, size));
+      {
+        std::unique_lock<std::mutex> lck(server_mutex);
+        const auto & [data, size] = server.server.data();
+        out.add("data", macaron::Base64::Encode(data, size));
+      }
       ws->send(out.dump(), uWS::OpCode::TEXT);
     }
     else if(request == "requestGUI")
