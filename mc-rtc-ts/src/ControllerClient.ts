@@ -61,7 +61,7 @@ export class ControllerClient {
       }
       else {
         if (ret.name.length) {
-          ret.subs.push(new Category([...ret.category, ret.name], c));
+          ret.subs.push(new Category(ret.category.concat(ret.name), c));
         }
         else {
           ret.subs.push(new Category([], c));
@@ -99,7 +99,7 @@ export class ControllerClient {
     }
     let next_category: string[] = parent;
     if (category.length) {
-      next_category.concat(category);
+      next_category = next_category.concat(category);
     }
     const cat_data: [...any] = data[data.length - 1];
     for (let i = 0; i < cat_data.length; ++i) {
