@@ -1,5 +1,4 @@
-export enum Elements
-{
+export enum Elements {
   Label = 0,
   ArrayLabel,
   Button,

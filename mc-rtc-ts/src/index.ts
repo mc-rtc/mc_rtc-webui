@@ -9,10 +9,15 @@ import { ControllerClient } from './ControllerClient';
 import { Socket, Protocol } from 'nanomsg-browser';
 
 const scene: THREE.Scene = new THREE.Scene();
-const socket = new WebSocket("ws://localhost:8080");
+const socket = new WebSocket('ws://localhost:8080');
 const client = new ControllerClient(socket);
 
-const client_socket = new Socket({protocol: Protocol.SUB, reconnectTime: 200, sendArrayBuffer: true, receiveArrayBuffer: true});
+const client_socket = new Socket({
+  protocol: Protocol.SUB,
+  reconnectTime: 200,
+  sendArrayBuffer: true,
+  receiveArrayBuffer: true
+});
 client_socket.on('data', (msg) => {
   const data = unpack(msg);
   // Keep this around for debug?
@@ -29,41 +34,39 @@ client_socket.on('end', (url) => {
 client_socket.connect('ws://localhost:8181');
 
 async function initSocket() {
-  socket.binaryType = "arraybuffer";
-  socket.addEventListener("open", (event) => {
+  socket.binaryType = 'arraybuffer';
+  socket.addEventListener('open', (event) => {
     console.log(`Connect event: ${event}`);
   });
-  socket.addEventListener("message", (event) => {
+  socket.addEventListener('message', (event) => {
     const response = JSON.parse(event.data);
     switch (response.response) {
       case 'getMesh':
         const manager = new THREE.LoadingManager();
         manager.setURLModifier((url) => {
-          if (url == "dummy") {
+          if (url == 'dummy') {
             return `data:;base64,${response.data}`;
-          }
-          else {
+          } else {
             return url;
           }
         });
         const loader = new GLTFLoader(manager);
         loader.load('dummy', (model) => {
-          console.log("ADD MODEL TO SCENE");
+          console.log('ADD MODEL TO SCENE');
           scene.add(model.scene);
         });
         break;
       case 'getGUI':
-        const data = unpack(Uint8Array.from(atob(response.data), c => c.charCodeAt(0)));
+        const data = unpack(Uint8Array.from(atob(response.data), (c) => c.charCodeAt(0)));
         client.update(data);
         break;
       default:
         console.log(`Unkwnon response from server ${response.response}`);
-    };
+    }
   });
 }
 
 async function init() {
-
   await initSocket();
 
   await ImGui.default();
@@ -85,24 +88,23 @@ async function init() {
   const controls = new OrbitControls(camera, canvas);
 
   const loader = new GLTFLoader();
-  loader.load('./models/head.gltf', function(gltf) {
-    console.log("Load head");
+  loader.load('./models/head.gltf', function (gltf) {
+    console.log('Load head');
     scene.add(gltf.scene);
   });
 
   scene.add(new THREE.HemisphereLight(0x8d7c7c, 0x494966, 3));
   addShadowedLight(1, 1, 1, 0xffffff, 3.5);
-  addShadowedLight(0.5, 1, - 1, 0xffd500, 3);
+  addShadowedLight(0.5, 1, -1, 0xffd500, 3);
 
   ImGui_Impl.setCanvasScale(1.0);
   ImGui_Impl.Init(canvas);
-
 
   function animate(time: DOMHighResTimeStamp) {
     ImGui_Impl.NewFrame(time);
     ImGui.NewFrame();
 
-    ImGui.Begin("Sample");
+    ImGui.Begin('Sample');
     ImGui.Text(`Hello at time ${time}`);
     ImGui.Text(`Want WantCaptureKeyboard: ${ImGui.GetIO().WantCaptureKeyboard}`);
     ImGui.Text(`Want WantCaptureMouse: ${ImGui.GetIO().WantCaptureMouse}`);
@@ -129,7 +131,6 @@ async function init() {
   window.requestAnimationFrame(animate);
 
   function addShadowedLight(x: number, y: number, z: number, color: THREE.ColorRepresentation, intensity: number) {
-
     const directionalLight = new THREE.DirectionalLight(color, intensity);
     directionalLight.position.set(x, y, z);
     scene.add(directionalLight);
@@ -137,25 +138,24 @@ async function init() {
     directionalLight.castShadow = true;
 
     const d = 1;
-    directionalLight.shadow.camera.left = - d;
+    directionalLight.shadow.camera.left = -d;
     directionalLight.shadow.camera.right = d;
     directionalLight.shadow.camera.top = d;
-    directionalLight.shadow.camera.bottom = - d;
+    directionalLight.shadow.camera.bottom = -d;
 
     directionalLight.shadow.camera.near = 1;
     directionalLight.shadow.camera.far = 4;
 
-    directionalLight.shadow.bias = - 0.002;
-
+    directionalLight.shadow.bias = -0.002;
   }
 
   const button_model = document.getElementById('button-model');
   button_model.onclick = () => {
-    socket.send(JSON.stringify({ "request": "getMesh", "uri": "default" }));
+    socket.send(JSON.stringify({ request: 'getMesh', uri: 'default' }));
   };
 
   document.getElementById('button-data').onclick = () => {
-    socket.send(JSON.stringify({ 'request': 'getGUI' }));
+    socket.send(JSON.stringify({ request: 'getGUI' }));
   };
 }
 init();

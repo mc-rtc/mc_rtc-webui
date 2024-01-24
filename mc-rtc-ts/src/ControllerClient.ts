@@ -12,17 +12,17 @@ import { PROTOCOL_VERSION } from './ProtocolVersion';
 import { ImGui } from '@zhobo63/imgui-ts';
 
 export class ControllerClient {
-  root: Category = new Category([], "");
+  root: Category = new Category([], '');
   data: object;
   socket: WebSocket;
   constructor(socket: WebSocket) {
     this.socket = socket;
   }
   sendRequest(req: Request) {
-    this.socket.send(JSON.stringify({ "request": "requestGUI", "data": req }));
+    this.socket.send(JSON.stringify({ request: 'requestGUI', data: req }));
   }
   draw() {
-    ImGui.Begin("mc_rtc");
+    ImGui.Begin('mc_rtc');
     this.root.draw((req: Request) => this.sendRequest(req));
     ImGui.End();
   }
@@ -57,16 +57,14 @@ export class ControllerClient {
   // Gets a Category object, creates it if needed
   getCategory(category: string[]): Category {
     let ret = this.root;
-    for (const c of category.filter(c => c.length)) {
-      const cat = ret.subs.find(cat => cat.name == c);
+    for (const c of category.filter((c) => c.length)) {
+      const cat = ret.subs.find((cat) => cat.name == c);
       if (cat) {
         ret = cat;
-      }
-      else {
+      } else {
         if (ret.name.length) {
           ret.subs.push(new Category(ret.category.concat(ret.name), c));
-        }
-        else {
+        } else {
           ret.subs.push(new Category([], c));
         }
         ret = ret.subs[ret.subs.length - 1];
@@ -88,24 +86,24 @@ export class ControllerClient {
       const widget_tid: number = widget_data[1];
       const sid = widget_data[2] === null ? -1 : widget_data[2];
       switch (widget_tid) {
-        case (Elements.Label):
+        case Elements.Label:
           const label_str: string = widget_data[3];
           const label: Label = cat.getWidget(Label, [widget_name, sid]);
           label.update(label_str);
           break;
-        case (Elements.ArrayLabel):
+        case Elements.ArrayLabel:
           const array_label: ArrayLabel = cat.getWidget(ArrayLabel, [widget_name, sid]);
           array_label.update(widget_data[4] || [], widget_data[3]);
           break;
-        case (Elements.Button):
+        case Elements.Button:
           cat.getWidget(Button, [widget_name, sid]);
           break;
-        case (Elements.Checkbox):
+        case Elements.Checkbox:
           const cbox: Checkbox = cat.getWidget(Checkbox, [widget_name, sid]);
           cbox.update(widget_data[3]);
           break;
-        case (Elements.StringInput):
-          const input : StringInput = cat.getWidget(StringInput, [widget_name, sid]);
+        case Elements.StringInput:
+          const input: StringInput = cat.getWidget(StringInput, [widget_name, sid]);
           input.update(widget_data[3]);
           break;
         default:

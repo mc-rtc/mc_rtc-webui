@@ -4,13 +4,15 @@ import { Widget } from './Widget';
 export class Label extends Widget {
   data: string = '';
   draw() {
-    const str : string = (() => {
-      if(this.data.length != 0){
-       return `${this.name} ${this.data}`;
+    const str: string = (() => {
+      if (this.data.length != 0) {
+        return `${this.name} ${this.data}`;
       }
       return `${this.name}`;
     })();
     ImGui.Text(str);
   }
-  update(data: string) { this.data = data; }
+  update(data: string) {
+    this.data = data;
+  }
 }

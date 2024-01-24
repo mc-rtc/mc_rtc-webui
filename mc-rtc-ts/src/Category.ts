@@ -33,13 +33,12 @@ export class Category extends Widget {
   }
 
   getWidget<Type extends Widget>(T: Ctor<Type>, data: [name: string, sid: number, ...any]): Type {
-    const wIdx = this.widgets.findIndex(w => w.name === data[0]);
+    const wIdx = this.widgets.findIndex((w) => w.name === data[0]);
     if (wIdx >= 0 && this.widgets[wIdx] instanceof T) {
       const widget: Type = this.widgets[wIdx] as Type;
       widget.visited = true;
       return widget;
-    }
-    else {
+    } else {
       if (wIdx >= 0) {
         this.widgets.splice(wIdx, 1);
       }
@@ -56,15 +55,16 @@ export class Category extends Widget {
   }
 
   draw(rh: RequestHandler) {
-    for (let i = 0; i < this.widgets.length;) {
+    for (let i = 0; i < this.widgets.length; ) {
       const w: Widget = this.widgets[i];
       if (w.sid == -1) {
         w.draw(rh);
         ++i;
-      }
-      else {
+      } else {
         let j = i + 1;
-        while (j < this.widgets.length && this.widgets[j].sid == w.sid) { ++j; }
+        while (j < this.widgets.length && this.widgets[j].sid == w.sid) {
+          ++j;
+        }
         ImGui.BeginTable(`${w.category}_table_${i}`, j - i, ImGui.ImGuiTableFlags.SizingStretchProp);
         for (; i < j; ++i) {
           ImGui.TableNextColumn();
@@ -92,7 +92,7 @@ export class Category extends Widget {
   }
 
   draw3d(rh: RequestHandler) {
-    for (const w of this.widgets.filter(w => w.draw3d)) {
+    for (const w of this.widgets.filter((w) => w.draw3d)) {
       w.draw3d(rh);
     }
     for (const c of this.subs) {

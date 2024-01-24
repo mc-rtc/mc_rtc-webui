@@ -12,11 +12,10 @@ export class StringInput extends SingleInput<string> {
     return this.buffer.buffer;
   }
 
-  protected draw_input(label: string, flags : ImGui.ImGuiInputTextFlags) {
-    if(!this.busy) {
-      ImGui.InputText(label, (_ = this.data) => this.data = _, null, flags);
-    }
-    else {
+  protected draw_input(label: string, flags: ImGui.ImGuiInputTextFlags) {
+    if (!this.busy) {
+      ImGui.InputText(label, (_ = this.data) => (this.data = _), null, flags);
+    } else {
       ImGui.InputText(label, this.buffer);
     }
   }
