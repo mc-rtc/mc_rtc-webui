@@ -2,6 +2,7 @@ import { ArrayLabel } from './ArrayLabel';
 import { Button } from './Button';
 import { Checkbox } from './Checkbox';
 import { Label } from './Label';
+import { StringInput } from './StringInput';
 
 import { Category } from './Category';
 import { Elements } from './Elements';
@@ -102,6 +103,10 @@ export class ControllerClient {
         case (Elements.Checkbox):
           const cbox: Checkbox = cat.getWidget(Checkbox, [widget_name, sid]);
           cbox.update(widget_data[3]);
+          break;
+        case (Elements.StringInput):
+          const input : StringInput = cat.getWidget(StringInput, [widget_name, sid]);
+          input.update(widget_data[3]);
           break;
         default:
           break;

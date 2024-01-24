@@ -1,7 +1,7 @@
 import { RequestHandler } from './Request';
 
 export class Widget {
-  constructor(category: string[], name: string, sid?: number) { this.category = category; this.name = name; this.sid = sid; }
+  constructor(category: string[], name: string, sid: number) { this.category = category; this.name = name; this.sid = sid; }
   category: string[] = [];
   name: string = "";
   sid: number = -1;

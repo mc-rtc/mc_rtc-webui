@@ -14,5 +14,5 @@ include(cmake/FetchuWebSockets.cmake)
 
 find_package(mc_rtc REQUIRED)
 
-add_executable(main src/main.cpp)
+add_executable(main src/main.cpp src/TestServer.cpp)
 target_link_libraries(main PUBLIC uWebSockets::uWebSockets uSockets::uSockets mc_rtc::mc_control_client)

@@ -29,6 +29,8 @@ struct TestServer
   mc_rtc::gui::StateBuilder builder;
   double t_ = 0.0;
 
+  void setup();
+
   void loop()
   {
     while(1)
@@ -39,4 +41,3 @@ struct TestServer
     }
   }
 };
-

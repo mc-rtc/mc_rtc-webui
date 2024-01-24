@@ -97,6 +97,7 @@ async function init() {
   ImGui_Impl.setCanvasScale(1.0);
   ImGui_Impl.Init(canvas);
 
+
   function animate(time: DOMHighResTimeStamp) {
     ImGui_Impl.NewFrame(time);
     ImGui.NewFrame();
@@ -105,6 +106,7 @@ async function init() {
     ImGui.Text(`Hello at time ${time}`);
     ImGui.Text(`Want WantCaptureKeyboard: ${ImGui.GetIO().WantCaptureKeyboard}`);
     ImGui.Text(`Want WantCaptureMouse: ${ImGui.GetIO().WantCaptureMouse}`);
+    ImGui.Text(`IsKeyPressed(Enter): ${ImGui.IsKeyPressed(ImGui.Key.Enter)}`);
     ImGui.End();
 
     client.draw();

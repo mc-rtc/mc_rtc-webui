@@ -1,7 +1,7 @@
 export class Request {
   category : string[];
   name : string;
-  payload? : object;
+  payload? : any;
 }
 
 export type RequestHandler = (req : Request) => void;

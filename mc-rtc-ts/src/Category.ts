@@ -8,6 +8,10 @@ export class Category extends Widget {
   widgets: Widget[] = [];
   subs: Category[] = [];
 
+  constructor(category: string[], name: string) {
+    super(category, name, -1);
+  }
+
   // Start an update cycle
   startUpdate() {
     for (const w of this.widgets) {
