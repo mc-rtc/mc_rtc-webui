@@ -1,5 +1,5 @@
-import { ControllerClient } from './ControllerClient';
-import { Request } from './Request';
+import { ControllerClient } from '../ControllerClient';
+import { Request } from '../types/Request';
 
 export class Widget {
   constructor(client: ControllerClient, category: string[], name: string, sid: number) {

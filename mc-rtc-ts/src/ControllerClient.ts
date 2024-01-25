@@ -1,19 +1,19 @@
-import { ArrayInput } from './ArrayInput';
-import { ArrayLabel } from './ArrayLabel';
-import { Button } from './Button';
-import { Checkbox } from './Checkbox';
-import { ComboInput } from './ComboInput';
-import { DataComboInput } from './DataComboInput';
-import { IntegerInput } from './IntegerInput';
-import { Label } from './Label';
-import { NumberInput } from './NumberInput';
-import { NumberSlider } from './NumberSlider';
-import { StringInput } from './StringInput';
+import { ArrayInput } from './widgets/ArrayInput';
+import { ArrayLabel } from './widgets/ArrayLabel';
+import { Button } from './widgets/Button';
+import { Checkbox } from './widgets/Checkbox';
+import { ComboInput } from './widgets/ComboInput';
+import { DataComboInput } from './widgets/DataComboInput';
+import { IntegerInput } from './widgets/IntegerInput';
+import { Label } from './widgets/Label';
+import { NumberInput } from './widgets/NumberInput';
+import { NumberSlider } from './widgets/NumberSlider';
+import { StringInput } from './widgets/StringInput';
 
-import { Category } from './Category';
-import { Elements } from './Elements';
-import { Request } from './Request';
-import { PROTOCOL_VERSION } from './ProtocolVersion';
+import { Category } from './widgets/Category';
+import { Elements } from './types/Elements';
+import { Request } from './types/Request';
+import { PROTOCOL_VERSION } from './types/ProtocolVersion';
 
 import { ImGui } from '@zhobo63/imgui-ts';
 

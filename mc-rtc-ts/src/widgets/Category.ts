@@ -1,4 +1,4 @@
-import { ControllerClient } from './ControllerClient';
+import { ControllerClient } from '../ControllerClient';
 import { ImGui } from '@zhobo63/imgui-ts';
 import { Widget } from './Widget';
 

@@ -3,5 +3,3 @@ export class Request {
   name: string;
   payload?: any;
 }
-
-export type RequestHandler = (req: Request) => void;
