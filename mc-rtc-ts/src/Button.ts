@@ -1,5 +1,4 @@
 import { ImGui } from '@zhobo63/imgui-ts';
-import { RequestHandler } from './Request';
 import { Widget } from './Widget';
 
 export class Button extends Widget {

@@ -1,6 +1,9 @@
+import { ArrayInput } from './ArrayInput';
 import { ArrayLabel } from './ArrayLabel';
 import { Button } from './Button';
 import { Checkbox } from './Checkbox';
+import { ComboInput } from './ComboInput';
+import { DataComboInput } from './DataComboInput';
 import { IntegerInput } from './IntegerInput';
 import { Label } from './Label';
 import { NumberInput } from './NumberInput';
@@ -112,6 +115,15 @@ export class ControllerClient {
           break;
         case Elements.NumberSlider:
           cat.widget(NumberSlider, widget_name, sid, ...widget_data.slice(3, 6));
+          break;
+        case Elements.ArrayInput:
+          cat.widget(ArrayInput, widget_name, sid, widget_data[4] || [], widget_data[3]);
+          break;
+        case Elements.ComboInput:
+          cat.widget(ComboInput, widget_name, sid, widget_data[4], widget_data[3]);
+          break;
+        case Elements.DataComboInput:
+          cat.widget(DataComboInput, widget_name, sid, widget_data[4], widget_data[3]);
           break;
         default:
           break;

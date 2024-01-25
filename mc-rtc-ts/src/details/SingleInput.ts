@@ -1,6 +1,6 @@
 import { ImGui } from '@zhobo63/imgui-ts';
-import { RequestHandler } from '../Request';
 import { Widget } from '../Widget';
+import { isEditDone } from '../utils';
 
 export abstract class SingleInput<DataT> extends Widget {
   busy: boolean = false;
@@ -32,7 +32,7 @@ export abstract class SingleInput<DataT> extends Widget {
       const clicked: boolean = ImGui.Button(this.label('Done'));
       ImGui.TableNextColumn();
       this.draw_input(this.label('', 'Input'), ImGui.InputTextFlags.None);
-      if (clicked || ImGui.IsKeyPressed(ImGui.ImGuiKey.Enter) || ImGui.IsKeyPressed(ImGui.ImGuiKey.KeyPadEnter)) {
+      if (clicked || isEditDone()) {
         const nData: DataT = this.dataFromBuffer();
         if (nData !== this.data) {
           this.data = nData;
