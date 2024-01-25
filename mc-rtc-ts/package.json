@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite",
     "format": "prettier --config .prettierrc 'src/**/*.ts' --write",
-    "build": "tsc && vite build && cp dist/main.js ../data/main.js",
+    "build": "npm run format && tsc && vite build && cp dist/main.js ../data/main.js",
     "preview": "vite preview"
   },
   "keywords": [],

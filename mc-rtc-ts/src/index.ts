@@ -148,14 +148,5 @@ async function init() {
 
     directionalLight.shadow.bias = -0.002;
   }
-
-  const button_model = document.getElementById('button-model');
-  button_model.onclick = () => {
-    socket.send(JSON.stringify({ request: 'getMesh', uri: 'default' }));
-  };
-
-  document.getElementById('button-data').onclick = () => {
-    socket.send(JSON.stringify({ request: 'getGUI' }));
-  };
 }
 init();

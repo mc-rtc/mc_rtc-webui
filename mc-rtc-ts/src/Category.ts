@@ -1,5 +1,5 @@
+import { ControllerClient } from './ControllerClient';
 import { ImGui } from '@zhobo63/imgui-ts';
-import { RequestHandler } from './Request';
 import { Widget } from './Widget';
 
 type Ctor<T> = new (...args: any[]) => T;
@@ -8,8 +8,8 @@ export class Category extends Widget {
   widgets: Widget[] = [];
   subs: Category[] = [];
 
-  constructor(category: string[], name: string) {
-    super(category, name, -1);
+  constructor(client: ControllerClient, category: string[], name: string) {
+    super(client, category, name, -1);
   }
 
   // Start an update cycle
@@ -32,8 +32,8 @@ export class Category extends Widget {
     }
   }
 
-  getWidget<Type extends Widget>(T: Ctor<Type>, data: [name: string, sid: number, ...any]): Type {
-    const wIdx = this.widgets.findIndex((w) => w.name === data[0]);
+  private getWidget<Type extends Widget>(T: Ctor<Type>, name: string, sid: number): Type {
+    const wIdx = this.widgets.findIndex((w) => w.name === name);
     if (wIdx >= 0 && this.widgets[wIdx] instanceof T) {
       const widget: Type = this.widgets[wIdx] as Type;
       widget.visited = true;
@@ -48,17 +48,25 @@ export class Category extends Widget {
         }
         return this.category;
       })();
-      const out = new T(widget_category, ...data);
+      const out = new T(this.client, widget_category, name, sid);
       this.widgets.push(out);
       return out;
     }
   }
 
-  draw(rh: RequestHandler) {
+  widget<Type extends Widget>(T: Ctor<Type>, name: string, sid: number, ...args: any): Type {
+    const widget: Type = this.getWidget(T, name, sid);
+    if (widget.update) {
+      widget.update(...args);
+    }
+    return widget;
+  }
+
+  draw() {
     for (let i = 0; i < this.widgets.length; ) {
       const w: Widget = this.widgets[i];
       if (w.sid == -1) {
-        w.draw(rh);
+        w.draw();
         ++i;
       } else {
         let j = i + 1;
@@ -68,7 +76,7 @@ export class Category extends Widget {
         ImGui.BeginTable(`${w.category}_table_${i}`, j - i, ImGui.ImGuiTableFlags.SizingStretchProp);
         for (; i < j; ++i) {
           ImGui.TableNextColumn();
-          this.widgets[i].draw(rh);
+          this.widgets[i].draw();
         }
         ImGui.EndTable();
       }
@@ -81,7 +89,7 @@ export class Category extends Widget {
       if (ImGui.BeginTabBar(this.name, ImGui.ImGuiTabBarFlags.Reorderable)) {
         for (const c of this.subs) {
           if (ImGui.BeginTabItem(c.name)) {
-            c.draw(rh);
+            c.draw();
             ImGui.EndTabItem();
           }
         }
@@ -91,12 +99,12 @@ export class Category extends Widget {
     }
   }
 
-  draw3d(rh: RequestHandler) {
-    for (const w of this.widgets.filter((w) => w.draw3d)) {
-      w.draw3d(rh);
+  draw3d() {
+    for (const w of this.widgets) {
+      w.draw3d();
     }
     for (const c of this.subs) {
-      c.draw3d(rh);
+      c.draw3d();
     }
   }
 }

@@ -16,7 +16,7 @@ export abstract class SingleInput<DataT> extends Widget {
 
   protected abstract dataFromBuffer(): DataT;
 
-  draw(rh: RequestHandler) {
+  draw() {
     ImGui.BeginTable(this.label('', 'Table'), 3, ImGui.TableFlags.SizingStretchProp);
     ImGui.TableNextColumn();
     ImGui.Text(`${this.name}`);
@@ -36,7 +36,7 @@ export abstract class SingleInput<DataT> extends Widget {
         const nData: DataT = this.dataFromBuffer();
         if (nData !== this.data) {
           this.data = nData;
-          rh({ category: this.category, name: this.name, payload: this.data });
+          this.sendRequest(this.data);
         }
         this.busy = false;
       }

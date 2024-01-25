@@ -1,7 +1,10 @@
 import { ArrayLabel } from './ArrayLabel';
 import { Button } from './Button';
 import { Checkbox } from './Checkbox';
+import { IntegerInput } from './IntegerInput';
 import { Label } from './Label';
+import { NumberInput } from './NumberInput';
+import { NumberSlider } from './NumberSlider';
 import { StringInput } from './StringInput';
 
 import { Category } from './Category';
@@ -12,7 +15,7 @@ import { PROTOCOL_VERSION } from './ProtocolVersion';
 import { ImGui } from '@zhobo63/imgui-ts';
 
 export class ControllerClient {
-  root: Category = new Category([], '');
+  root: Category = new Category(this, [], '');
   data: object;
   socket: WebSocket;
   constructor(socket: WebSocket) {
@@ -23,11 +26,11 @@ export class ControllerClient {
   }
   draw() {
     ImGui.Begin('mc_rtc');
-    this.root.draw((req: Request) => this.sendRequest(req));
+    this.root.draw();
     ImGui.End();
   }
   draw3d() {
-    this.root.draw3d(this.sendRequest);
+    this.root.draw3d();
   }
   update(data: Array<any>) {
     this.root.startUpdate();
@@ -63,9 +66,9 @@ export class ControllerClient {
         ret = cat;
       } else {
         if (ret.name.length) {
-          ret.subs.push(new Category(ret.category.concat(ret.name), c));
+          ret.subs.push(new Category(this, ret.category.concat(ret.name), c));
         } else {
-          ret.subs.push(new Category([], c));
+          ret.subs.push(new Category(this, [], c));
         }
         ret = ret.subs[ret.subs.length - 1];
       }
@@ -87,24 +90,28 @@ export class ControllerClient {
       const sid = widget_data[2] === null ? -1 : widget_data[2];
       switch (widget_tid) {
         case Elements.Label:
-          const label_str: string = widget_data[3];
-          const label: Label = cat.getWidget(Label, [widget_name, sid]);
-          label.update(label_str);
+          cat.widget(Label, widget_name, sid, widget_data[3]);
           break;
         case Elements.ArrayLabel:
-          const array_label: ArrayLabel = cat.getWidget(ArrayLabel, [widget_name, sid]);
-          array_label.update(widget_data[4] || [], widget_data[3]);
+          cat.widget(ArrayLabel, widget_name, sid, widget_data[4] || [], widget_data[3]);
           break;
         case Elements.Button:
-          cat.getWidget(Button, [widget_name, sid]);
+          cat.widget(Button, widget_name, sid);
           break;
         case Elements.Checkbox:
-          const cbox: Checkbox = cat.getWidget(Checkbox, [widget_name, sid]);
-          cbox.update(widget_data[3]);
+          cat.widget(Checkbox, widget_name, sid, widget_data[3]);
           break;
         case Elements.StringInput:
-          const input: StringInput = cat.getWidget(StringInput, [widget_name, sid]);
-          input.update(widget_data[3]);
+          cat.widget(StringInput, widget_name, sid, widget_data[3]);
+          break;
+        case Elements.IntegerInput:
+          cat.widget(IntegerInput, widget_name, sid, widget_data[3]);
+          break;
+        case Elements.NumberInput:
+          cat.widget(NumberInput, widget_name, sid, widget_data[3]);
+          break;
+        case Elements.NumberSlider:
+          cat.widget(NumberSlider, widget_name, sid, ...widget_data.slice(3, 6));
           break;
         default:
           break;

@@ -3,9 +3,9 @@ import { RequestHandler } from './Request';
 import { Widget } from './Widget';
 
 export class Button extends Widget {
-  draw(rh: RequestHandler) {
+  draw() {
     if (ImGui.Button(this.label(this.name))) {
-      rh({ category: this.category, name: this.name });
+      this.sendRequest();
     }
   }
 }
