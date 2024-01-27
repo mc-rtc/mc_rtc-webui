@@ -6,7 +6,7 @@
   "description": "",
   "scripts": {
     "dev": "vite",
-    "format": "prettier --config .prettierrc 'src/**/*.ts' --write",
+    "format": "prettier --config .prettierrc 'src/**/*.ts' --write && prettier --config .prettierrc 'src/**/*.js' --write",
     "build": "npm run format && tsc && vite build && cp dist/main.js ../data/main.js",
     "preview": "vite preview"
   },

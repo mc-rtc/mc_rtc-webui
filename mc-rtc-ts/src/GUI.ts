@@ -9,6 +9,7 @@ import { Box } from './gui/Box';
 import { Sphere } from './gui/Sphere';
 import { TransformControls } from './gui/TransformControls';
 
+import { Axes } from './types/Axes';
 import { Color } from './types/Color';
 
 export class GUI {
@@ -122,6 +123,8 @@ export class GUI {
 
   constructor(client: ControllerClient) {
     this.scene = new THREE.Scene();
+    const grid = new THREE.GridHelper(30, 30, 0x444444, 0x888888);
+    this.scene.add(grid);
     this.client = client;
   }
 }
