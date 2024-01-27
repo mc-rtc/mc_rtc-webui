@@ -15,12 +15,15 @@ import { Elements } from './types/Elements';
 import { Request } from './types/Request';
 import { PROTOCOL_VERSION } from './types/ProtocolVersion';
 
+import { GUI } from './GUI';
+
 import { ImGui } from '@zhobo63/imgui-ts';
 
 export class ControllerClient {
   root: Category = new Category(this, [], '');
   data: object;
   socket: WebSocket;
+  gui: GUI;
   constructor(socket: WebSocket) {
     this.socket = socket;
   }

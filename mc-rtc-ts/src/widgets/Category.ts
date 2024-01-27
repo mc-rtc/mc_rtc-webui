@@ -25,7 +25,7 @@ export class Category extends Widget {
 
   // End of an update cycle
   endUpdate() {
-    this.widgets = this.widgets.filter((w: Widget) => w.visited);
+    this.widgets = this.widgets.filter((w: Widget) => w.visited || w.cleanup());
     this.subs = this.subs.filter((s: Category) => s.visited);
     for (const s of this.subs) {
       s.endUpdate();

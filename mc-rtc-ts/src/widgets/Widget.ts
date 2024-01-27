@@ -16,6 +16,7 @@ export class Widget {
   draw(): void {}
   draw3d(): void {}
   update?(...args: any): void;
+  cleanup(): void {}
   label(label: string, extra: string = ''): string {
     return `${label}##${this.category}${this.name}${extra}`;
   }

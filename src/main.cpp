@@ -52,17 +52,6 @@ int main()
       out.add("data", macaron::Base64::Encode(msg));
       ws->send(out.dump(), uWS::OpCode::TEXT);
     }
-    else if(request == "getGUI")
-    {
-      mc_rtc::Configuration out;
-      out.add("response", "getGUI");
-      {
-        std::unique_lock<std::mutex> lck(server_mutex);
-        const auto & [data, size] = server.server.data();
-        out.add("data", macaron::Base64::Encode(data, size));
-      }
-      ws->send(out.dump(), uWS::OpCode::TEXT);
-    }
     else if(request == "requestGUI")
     {
       auto data = cfg("data");
