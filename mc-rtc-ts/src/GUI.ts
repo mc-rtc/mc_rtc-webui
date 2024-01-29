@@ -26,6 +26,13 @@ export class GUI {
     return new Box(this.scene, width, height, depth, color);
   }
 
+  control() {
+    const control = new TransformControls(this.camera, this.renderer.domElement);
+    this.controls.push(control);
+    this.scene.add(control);
+    return control;
+  }
+
   sphere(radius: number, color: Color) {
     return new Sphere(this.scene, radius, color);
   }
@@ -36,11 +43,9 @@ export class GUI {
     ImGui.Text(`Want WantCaptureKeyboard: ${ImGui.GetIO().WantCaptureKeyboard}`);
     ImGui.Text(`Want WantCaptureMouse: ${ImGui.GetIO().WantCaptureMouse}`);
     if (ImGui.Button('Add controled box')) {
-      const box = this.box(0.2, 0.2, 0.2, [0, 0, 1, 1]);
-      const control: TransformControls = new TransformControls(this.camera, this.renderer.domElement);
+      const box = this.box(0.2, 0.2, 0.2, new Color([0, 0, 1, 1]));
+      const control = this.control();
       control.attach(box);
-      this.scene.add(control);
-      this.controls.push(control);
     }
     ImGui.End();
   }
@@ -82,15 +87,15 @@ export class GUI {
     this.renderer.shadowMap.enabled = true;
 
     this.camera = new THREE.PerspectiveCamera(75, this.canvas.width / this.canvas.height, 0.1, 1000);
-    this.camera.position.set(1.0, 0.15, 1.0);
+    this.camera.position.set(3.0, 0.15, 2.0);
 
     this.orbit = new OrbitControls(this.camera, this.canvas);
 
     this.loader = new GLTFLoader();
-    this.loader.load('./models/head.gltf', (gltf) => {
-      console.log('Load head');
-      this.scene.add(gltf.scene);
-    });
+    // this.loader.load('./models/head.gltf', (gltf) => {
+    //   console.log('Load head');
+    //   this.scene.add(gltf.scene);
+    // });
 
     this.scene.add(new THREE.HemisphereLight(0x8d7c7c, 0x494966, 3));
     this.addShadowedLight(1, 1, 1, 0xffffff, 3.5);
@@ -122,8 +127,11 @@ export class GUI {
   }
 
   constructor(client: ControllerClient) {
+    client.gui = this;
+    THREE.Object3D.DEFAULT_UP = new THREE.Vector3(0, 0, 1);
     this.scene = new THREE.Scene();
     const grid = new THREE.GridHelper(30, 30, 0x444444, 0x888888);
+    grid.rotateX(3.14 / 2);
     this.scene.add(grid);
     this.client = client;
   }

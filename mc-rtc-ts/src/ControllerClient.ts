@@ -8,12 +8,15 @@ import { IntegerInput } from './widgets/IntegerInput';
 import { Label } from './widgets/Label';
 import { NumberInput } from './widgets/NumberInput';
 import { NumberSlider } from './widgets/NumberSlider';
+import { Point3D } from './widgets/Point3D';
 import { StringInput } from './widgets/StringInput';
 
 import { Category } from './widgets/Category';
 import { Elements } from './types/Elements';
 import { Request } from './types/Request';
 import { PROTOCOL_VERSION } from './types/ProtocolVersion';
+
+import { PointConfig } from './types/PointConfig';
 
 import { GUI } from './GUI';
 
@@ -39,6 +42,9 @@ export class ControllerClient {
     this.root.draw3d();
   }
   update(data: Array<any>) {
+    if (!this.gui) {
+      return;
+    }
     this.root.startUpdate();
     this.doUpdate(data);
     this.root.endUpdate();
@@ -128,6 +134,16 @@ export class ControllerClient {
         case Elements.DataComboInput:
           cat.widget(DataComboInput, widget_name, sid, widget_data[4], widget_data[3]);
           break;
+        case Elements.Point3D: {
+          const pos: number[] = widget_data[3];
+          const ro: boolean = widget_data[4];
+          const config: PointConfig =
+            widget_data.length > 5 ? PointConfig.fromMessage(widget_data[5]) : new PointConfig();
+          const ctor = ro ? ArrayLabel : ArrayInput;
+          cat.widget(ctor, widget_name, sid, ['x', 'y', 'z'], pos);
+          cat.widget(Point3D, widget_name + '_point3d', sid, widget_name, ro, pos, config);
+          break;
+        }
         default:
           break;
         // console.error(`Cannot handle widget type: ${widget_tid}`);

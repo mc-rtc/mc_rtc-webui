@@ -62,12 +62,11 @@ async function initSocket() {
 }
 
 async function init() {
-  await initSocket();
-
   // ImGui initialization
   await ImGui.default();
 
   gui = new GUI(client);
   gui.run();
+  await initSocket();
 }
 init();
