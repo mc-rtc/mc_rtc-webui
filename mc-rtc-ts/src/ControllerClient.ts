@@ -9,7 +9,10 @@ import { Label } from './widgets/Label';
 import { NumberInput } from './widgets/NumberInput';
 import { NumberSlider } from './widgets/NumberSlider';
 import { Point3D } from './widgets/Point3D';
+import { Rotation } from './widgets/Rotation';
 import { StringInput } from './widgets/StringInput';
+import { Transform } from './widgets/Transform';
+import { XYZTheta } from './widgets/XYZTheta';
 
 import { Category } from './widgets/Category';
 import { Elements } from './types/Elements';
@@ -17,6 +20,8 @@ import { Request } from './types/Request';
 import { PROTOCOL_VERSION } from './types/ProtocolVersion';
 
 import { PointConfig } from './types/PointConfig';
+
+import { pt_to_array } from './widgets/utils';
 
 import { GUI } from './GUI';
 
@@ -142,6 +147,38 @@ export class ControllerClient {
           const ctor = ro ? ArrayLabel : ArrayInput;
           cat.widget(ctor, widget_name, sid, ['x', 'y', 'z'], pos);
           cat.widget(Point3D, widget_name + '_point3d', sid, widget_name, ro, pos, config);
+          break;
+        }
+        case Elements.Transform: {
+          const pos: number[] = pt_to_array(widget_data[3]);
+          const ro: boolean = widget_data[4];
+          const ctor = ro ? ArrayLabel : ArrayInput;
+          cat.widget(ctor, widget_name, sid, ['qw', 'qx', 'qy', 'qz', 'tx', 'ty', 'tz'], pos);
+          cat.widget(Transform, widget_name + '_transform', sid, widget_name, ro, pos);
+          break;
+        }
+        case Elements.Rotation: {
+          const pos: number[] = pt_to_array(widget_data[3]);
+          const ro: boolean = widget_data[4];
+          const ctor = ro ? ArrayLabel : ArrayInput;
+          cat.widget(ctor, widget_name, sid, ['qw', 'qx', 'qy', 'qz'], pos.slice(0, 4));
+          cat.widget(Rotation, widget_name + '_rotation', sid, widget_name, ro, pos);
+          break;
+        }
+        case Elements.XYTheta: {
+          // pos is either [x, y, theta] or [x, y, theta, z]
+          const pos: number[] = widget_data[3];
+          if (pos.length < 3 || pos.length > 4) {
+            console.log(`${widget_name} provides ${pos.length} data but expected 3 or 4`);
+            break;
+          }
+          const ro: boolean = widget_data[4];
+          if (pos.length === 3) {
+            pos.push(0);
+          }
+          const ctor = ro ? ArrayLabel : ArrayInput;
+          cat.widget(ctor, widget_name, sid, ['X', 'Y', 'Theta', 'Altitude'], pos);
+          cat.widget(XYZTheta, widget_name + '_xytheta', sid, widget_name, ro, pos);
           break;
         }
         default:
