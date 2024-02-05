@@ -49,7 +49,7 @@ export class TransformBase extends Widget {
         this.visual.position.x = pos[0];
         this.visual.position.y = pos[1];
         this.visual.position.z = pos[3];
-        this.visual.setRotationFromEuler(new THREE.Euler(0, 0, -pos[2]));
+        this.visual.setRotationFromEuler(new THREE.Euler(0, 0, pos[2]));
       } else if (pos.length === 7) {
         // ALL
         this.visual.quaternion.w = pos[0];
@@ -96,7 +96,7 @@ export class TransformBase extends Widget {
       if (this.axes === Axes.XYZTHETA || this.axes === Axes.XYTHETA) {
         // Push theta
         const euler: THREE.Euler = new THREE.Euler();
-        euler.setFromQuaternion(this.visual.quaternion.clone().invert());
+        euler.setFromQuaternion(this.visual.quaternion.clone());
         request = [this.visual.position.x, this.visual.position.y, euler.z];
         if (this.axes === Axes.XYZTHETA) {
           request.push(this.visual.position.z);
