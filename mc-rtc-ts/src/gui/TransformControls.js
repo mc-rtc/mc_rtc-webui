@@ -1,6 +1,9 @@
 // Taken from https://github.com/mrdoob/three.js/blob/856c33043db6c98f260074a08754df004c242cb0/examples/jsm/controls/TransformControls.js
 //
-// Modified to allow simultaneous translation/orientation controls
+// Modified to:
+// - allow simultaneous translation/orientation controls
+// - disable screen-space scaling
+// - disable screen-space gizmos
 
 import {
   BoxGeometry,
@@ -108,6 +111,7 @@ class TransformControls extends Object3D {
     defineProperty('scaleSnap', null);
     defineProperty('space', 'local');
     defineProperty('size', 1);
+    defineProperty('screen_scale', false);
     defineProperty('dragging', false);
     defineProperty('showX', { translate: true, rotate: true, scale: true });
     defineProperty('showY', { translate: true, rotate: true, scale: true });
@@ -754,7 +758,7 @@ class TransformControlsGizmo extends Object3D {
         [new Mesh(arrowGeometry, matBlue), [0, 0, -0.5], [-Math.PI / 2, 0, 0]],
         [new Mesh(lineGeometry2, matBlue), null, [Math.PI / 2, 0, 0]]
       ],
-      XYZ: [[new Mesh(new OctahedronGeometry(0.1, 0), matWhiteTransparent.clone()), [0, 0, 0]]],
+      // XYZ: [[new Mesh(new OctahedronGeometry(0.1, 0), matWhiteTransparent.clone()), [0, 0, 0]]],
       XY: [[new Mesh(new BoxGeometry(0.15, 0.15, 0.01), matBlueTransparent.clone()), [0.15, 0.15, 0]]],
       YZ: [
         [new Mesh(new BoxGeometry(0.15, 0.15, 0.01), matRedTransparent.clone()), [0, 0.15, 0.15], [0, Math.PI / 2, 0]]
@@ -781,7 +785,7 @@ class TransformControlsGizmo extends Object3D {
         [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0, 0, 0.3], [Math.PI / 2, 0, 0]],
         [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0, 0, -0.3], [-Math.PI / 2, 0, 0]]
       ],
-      XYZ: [[new Mesh(new OctahedronGeometry(0.2, 0), matInvisible)]],
+      // XYZ: [[new Mesh(new OctahedronGeometry(0.2, 0), matInvisible)]],
       XY: [[new Mesh(new BoxGeometry(0.2, 0.2, 0.01), matInvisible), [0.15, 0.15, 0]]],
       YZ: [[new Mesh(new BoxGeometry(0.2, 0.2, 0.01), matInvisible), [0, 0.15, 0.15], [0, Math.PI / 2, 0]]],
       XZ: [[new Mesh(new BoxGeometry(0.2, 0.2, 0.01), matInvisible), [0.15, 0, 0.15], [-Math.PI / 2, 0, 0]]]
@@ -800,8 +804,8 @@ class TransformControlsGizmo extends Object3D {
       XYZE: [[new Mesh(CircleGeometry(0.5, 1), matGray), null, [0, Math.PI / 2, 0]]],
       X: [[new Mesh(CircleGeometry(0.5, 0.5), matRed_rotate)]],
       Y: [[new Mesh(CircleGeometry(0.5, 0.5), matGreen_rotate), null, [0, 0, -Math.PI / 2]]],
-      Z: [[new Mesh(CircleGeometry(0.5, 0.5), matBlue_rotate), null, [0, Math.PI / 2, 0]]],
-      E: [[new Mesh(CircleGeometry(0.75, 1), matYellowTransparent), null, [0, Math.PI / 2, 0]]]
+      Z: [[new Mesh(CircleGeometry(0.5, 0.5), matBlue_rotate), null, [0, Math.PI / 2, 0]]]
+      // E: [[new Mesh(CircleGeometry(0.75, 1), matYellowTransparent), null, [0, Math.PI / 2, 0]]]
     };
 
     const helperRotate = {
@@ -809,11 +813,11 @@ class TransformControlsGizmo extends Object3D {
     };
 
     const pickerRotate = {
-      XYZE: [[new Mesh(new SphereGeometry(0.25, 10, 8), matInvisible)]],
+      // XYZE: [[new Mesh(new SphereGeometry(0.25, 10, 8), matInvisible)]],
       X: [[new Mesh(new TorusGeometry(0.5, 0.1, 4, 24), matInvisible), [0, 0, 0], [0, -Math.PI / 2, -Math.PI / 2]]],
       Y: [[new Mesh(new TorusGeometry(0.5, 0.1, 4, 24), matInvisible), [0, 0, 0], [Math.PI / 2, 0, 0]]],
-      Z: [[new Mesh(new TorusGeometry(0.5, 0.1, 4, 24), matInvisible), [0, 0, 0], [0, 0, -Math.PI / 2]]],
-      E: [[new Mesh(new TorusGeometry(0.75, 0.1, 2, 24), matInvisible)]]
+      Z: [[new Mesh(new TorusGeometry(0.5, 0.1, 4, 24), matInvisible), [0, 0, 0], [0, 0, -Math.PI / 2]]]
+      // E: [[new Mesh(new TorusGeometry(0.75, 0.1, 2, 24), matInvisible)]]
     };
 
     const gizmoScale = {
@@ -834,8 +838,8 @@ class TransformControlsGizmo extends Object3D {
       ],
       XY: [[new Mesh(new BoxGeometry(0.15, 0.15, 0.01), matBlueTransparent), [0.15, 0.15, 0]]],
       YZ: [[new Mesh(new BoxGeometry(0.15, 0.15, 0.01), matRedTransparent), [0, 0.15, 0.15], [0, Math.PI / 2, 0]]],
-      XZ: [[new Mesh(new BoxGeometry(0.15, 0.15, 0.01), matGreenTransparent), [0.15, 0, 0.15], [-Math.PI / 2, 0, 0]]],
-      XYZ: [[new Mesh(new BoxGeometry(0.1, 0.1, 0.1), matWhiteTransparent.clone())]]
+      XZ: [[new Mesh(new BoxGeometry(0.15, 0.15, 0.01), matGreenTransparent), [0.15, 0, 0.15], [-Math.PI / 2, 0, 0]]]
+      // XYZ: [[new Mesh(new BoxGeometry(0.1, 0.1, 0.1), matWhiteTransparent.clone())]]
     };
 
     const pickerScale = {
@@ -853,8 +857,8 @@ class TransformControlsGizmo extends Object3D {
       ],
       XY: [[new Mesh(new BoxGeometry(0.2, 0.2, 0.01), matInvisible), [0.15, 0.15, 0]]],
       YZ: [[new Mesh(new BoxGeometry(0.2, 0.2, 0.01), matInvisible), [0, 0.15, 0.15], [0, Math.PI / 2, 0]]],
-      XZ: [[new Mesh(new BoxGeometry(0.2, 0.2, 0.01), matInvisible), [0.15, 0, 0.15], [-Math.PI / 2, 0, 0]]],
-      XYZ: [[new Mesh(new BoxGeometry(0.2, 0.2, 0.2), matInvisible), [0, 0, 0]]]
+      XZ: [[new Mesh(new BoxGeometry(0.2, 0.2, 0.01), matInvisible), [0.15, 0, 0.15], [-Math.PI / 2, 0, 0]]]
+      // XYZ: [[new Mesh(new BoxGeometry(0.2, 0.2, 0.2), matInvisible), [0, 0, 0]]]
     };
 
     const helperScale = {
@@ -952,17 +956,21 @@ class TransformControlsGizmo extends Object3D {
       handle.rotation.set(0, 0, 0);
       handle.position.copy(this.worldPosition);
 
-      let factor;
+      if (this.screen_scale) {
+        let factor;
 
-      if (this.camera.isOrthographicCamera) {
-        factor = (this.camera.top - this.camera.bottom) / this.camera.zoom;
+        if (this.camera.isOrthographicCamera) {
+          factor = (this.camera.top - this.camera.bottom) / this.camera.zoom;
+        } else {
+          factor =
+            this.worldPosition.distanceTo(this.cameraPosition) *
+            Math.min((1.9 * Math.tan((Math.PI * this.camera.fov) / 360)) / this.camera.zoom, 7);
+        }
+
+        handle.scale.set(1, 1, 1).multiplyScalar((factor * this.size) / 4);
       } else {
-        factor =
-          this.worldPosition.distanceTo(this.cameraPosition) *
-          Math.min((1.9 * Math.tan((Math.PI * this.camera.fov) / 360)) / this.camera.zoom, 7);
+        handle.scale.set(1, 1, 1);
       }
-
-      handle.scale.set(1, 1, 1).multiplyScalar((factor * this.size) / 4);
 
       // TODO: simplify helpers and consider decoupling from gizmo
 
