@@ -25,7 +25,12 @@ struct TestServer
     t_ += 0.005;
   }
 
-  mc_control::ControllerServer server{0.005, 0.05, {"ws://*:8181"}, {"ws://*:8182"}};
+  mc_control::ControllerServerConfiguration cfg = []() {
+    mc_control::ControllerServerConfiguration cfg;
+    cfg.websocket_config = mc_control::ControllerServerConfiguration::WebSocketConfiguration{"*", 8181, 8182};
+    return cfg;
+  }();
+  mc_control::ControllerServer server{0.005, cfg};
   mc_rtc::gui::StateBuilder builder;
   double t_ = 0.0;
 

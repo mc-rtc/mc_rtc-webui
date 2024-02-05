@@ -24,6 +24,7 @@ Eigen::VectorXd xythetaz_int;
 
 void TestServer::setup()
 {
+  cfg.print_serving_information();
   xythetaz_int.resize(4);
   xythetaz_int << 1., 2., M_PI / 5, 1;
   auto data = builder.data();
