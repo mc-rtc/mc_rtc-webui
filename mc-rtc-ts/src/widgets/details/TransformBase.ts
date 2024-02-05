@@ -80,11 +80,14 @@ export class TransformBase extends Widget {
       if ((this.axes & Axes.TRANSLATION) === Axes.TRANSLATION) {
         request.push(this.visual.position.x, this.visual.position.y, this.visual.position.z);
       }
-      if (this.axes === Axes.XYZTHETA) {
+      if (this.axes === Axes.XYZTHETA || this.axes === Axes.XYTHETA) {
         // Push theta
         const euler: THREE.Euler = new THREE.Euler();
         euler.setFromQuaternion(this.visual.quaternion.clone().invert());
-        request = [this.visual.position.x, this.visual.position.y, euler.z, this.visual.position.z];
+        request = [this.visual.position.x, this.visual.position.y, euler.z];
+        if (this.axes === Axes.XYZTHETA) {
+          request.push(this.visual.position.z);
+        }
       }
       if (request.length !== 0) {
         this.sendRequest(request, this.requestName);

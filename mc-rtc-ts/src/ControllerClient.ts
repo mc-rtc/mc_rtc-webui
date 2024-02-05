@@ -12,6 +12,7 @@ import { Point3D } from './widgets/Point3D';
 import { Rotation } from './widgets/Rotation';
 import { StringInput } from './widgets/StringInput';
 import { Transform } from './widgets/Transform';
+import { XYTheta } from './widgets/XYTheta';
 import { XYZTheta } from './widgets/XYZTheta';
 
 import { Category } from './widgets/Category';
@@ -173,12 +174,13 @@ export class ControllerClient {
             break;
           }
           const ro: boolean = widget_data[4];
+          const ctor_3d = pos.length === 3 ? XYTheta : XYZTheta;
           if (pos.length === 3) {
             pos.push(0);
           }
           const ctor = ro ? ArrayLabel : ArrayInput;
           cat.widget(ctor, widget_name, sid, ['X', 'Y', 'Theta', 'Altitude'], pos);
-          cat.widget(XYZTheta, widget_name + '_xytheta', sid, widget_name, ro, pos);
+          cat.widget(ctor_3d, widget_name + '_xytheta', sid, widget_name, ro, pos);
           break;
         }
         default:
