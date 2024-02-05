@@ -146,24 +146,24 @@ export class ControllerClient {
           const config: PointConfig =
             widget_data.length > 5 ? PointConfig.fromMessage(widget_data[5]) : new PointConfig();
           const ctor = ro ? ArrayLabel : ArrayInput;
-          cat.widget(ctor, widget_name, sid, ['x', 'y', 'z'], pos);
-          cat.widget(Point3D, widget_name + '_point3d', sid, widget_name, ro, pos, config);
+          const tf_w = cat.widget(Point3D, widget_name + '_point3d', sid, widget_name, ro, pos, config);
+          cat.widget(ctor, widget_name, sid, ['x', 'y', 'z'], pos, tf_w);
           break;
         }
         case Elements.Transform: {
           const pos: number[] = pt_to_array(widget_data[3]);
           const ro: boolean = widget_data[4];
           const ctor = ro ? ArrayLabel : ArrayInput;
-          cat.widget(ctor, widget_name, sid, ['qw', 'qx', 'qy', 'qz', 'tx', 'ty', 'tz'], pos);
-          cat.widget(Transform, widget_name + '_transform', sid, widget_name, ro, pos);
+          const tf_w = cat.widget(Transform, widget_name + '_transform', sid, widget_name, ro, pos);
+          cat.widget(ctor, widget_name, sid, ['qw', 'qx', 'qy', 'qz', 'tx', 'ty', 'tz'], pos, tf_w);
           break;
         }
         case Elements.Rotation: {
           const pos: number[] = pt_to_array(widget_data[3]);
           const ro: boolean = widget_data[4];
           const ctor = ro ? ArrayLabel : ArrayInput;
-          cat.widget(ctor, widget_name, sid, ['qw', 'qx', 'qy', 'qz'], pos.slice(0, 4));
-          cat.widget(Rotation, widget_name + '_rotation', sid, widget_name, ro, pos);
+          const tf_w = cat.widget(Rotation, widget_name + '_rotation', sid, widget_name, ro, pos);
+          cat.widget(ctor, widget_name, sid, ['qw', 'qx', 'qy', 'qz'], pos.slice(0, 4), tf_w);
           break;
         }
         case Elements.XYTheta: {
@@ -179,8 +179,8 @@ export class ControllerClient {
             pos.push(0);
           }
           const ctor = ro ? ArrayLabel : ArrayInput;
-          cat.widget(ctor, widget_name, sid, ['X', 'Y', 'Theta', 'Altitude'], pos);
-          cat.widget(ctor_3d, widget_name + '_xytheta', sid, widget_name, ro, pos);
+          const tf_w = cat.widget(ctor_3d, widget_name + '_xytheta', sid, widget_name, ro, pos);
+          cat.widget(ctor, widget_name, sid, ['X', 'Y', 'Theta', 'Altitude'], pos, tf_w);
           break;
         }
         default:

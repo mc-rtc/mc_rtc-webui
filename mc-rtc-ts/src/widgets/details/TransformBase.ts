@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 
+import { ImGui } from '@zhobo63/imgui-ts';
+
 import { ControllerClient } from '../../ControllerClient';
 import { Widget } from '../Widget';
 
@@ -60,6 +62,17 @@ export class TransformBase extends Widget {
       } else {
         console.log(`${this.name} requested position update with data of length ${pos.length}`);
       }
+    }
+  }
+
+  draw_visibility_toggle() {
+    if (!this.visual) {
+      return;
+    }
+    const visible: boolean = this.visual.visible;
+    if (ImGui.Button(this.label(visible ? 'Hide' : 'Show'))) {
+      this.visual.visible = !this.visual.visible;
+      this.control.visible = this.visual.visible;
     }
   }
 

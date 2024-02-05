@@ -1,13 +1,19 @@
 import { ImGui } from '@zhobo63/imgui-ts';
+import { TransformBase } from './details/TransformBase';
 import { Widget } from './Widget';
 import { norm } from './utils';
 
 export class ArrayLabel extends Widget {
   data: number[] = [];
   labels: string[] = [];
+  tf_widget: TransformBase = null;
 
   draw() {
     ImGui.Text(this.name);
+    if (this.tf_widget) {
+      ImGui.SameLine();
+      this.tf_widget.draw_visibility_toggle();
+    }
     // "Long" data vector with no labels
     if (this.data.length > 6 && this.labels.length === 0) {
       const hovered: boolean = ImGui.IsItemHovered();
@@ -53,8 +59,9 @@ export class ArrayLabel extends Widget {
     }
   }
 
-  update(labels: string[], data: number[]) {
+  update(labels: string[], data: number[], tf_widget: TransformBase = null) {
     this.labels = labels;
     this.data = data;
+    this.tf_widget = tf_widget;
   }
 }

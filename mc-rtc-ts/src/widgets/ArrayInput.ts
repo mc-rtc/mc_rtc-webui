@@ -1,4 +1,5 @@
 import { ImGui } from '@zhobo63/imgui-ts';
+import { TransformBase } from './details/TransformBase';
 import { Widget } from './Widget';
 import { isEditDone } from './utils';
 
@@ -7,10 +8,12 @@ export class ArrayInput extends Widget {
   labels: string[] = [];
   data: number[];
   buffer: number[];
+  tf_widget: TransformBase = null;
 
-  update(labels: string[], data: number[]) {
+  update(labels: string[], data: number[], tf_widget: TransformBase = null) {
     this.labels = labels;
     this.data = data;
+    this.tf_widget = tf_widget;
   }
 
   draw() {
@@ -24,6 +27,10 @@ export class ArrayInput extends Widget {
     ImGui.Text(`${this.name}`);
     ImGui.SameLine();
     edit_done = ImGui.Button(this.label(this.busy ? 'Done' : 'Edit'));
+    if (this.tf_widget) {
+      ImGui.SameLine();
+      this.tf_widget.draw_visibility_toggle();
+    }
     ImGui.BeginTable(this.label('', '_table_data'), this.data.length, ImGui.TableFlags.SizingStretchProp);
     for (const label of this.labels) {
       ImGui.TableNextColumn();

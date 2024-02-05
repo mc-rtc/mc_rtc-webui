@@ -5,7 +5,7 @@ export class PointConfig {
   scale: number;
 
   constructor(color?: Color, scale?: number) {
-    this.color = color ?? new Color([1, 0, 0, 1]);
+    this.color = color ?? new Color([1, 0, 0, 0.5]);
     this.scale = 2 * (scale ?? 0.02);
   }
 
