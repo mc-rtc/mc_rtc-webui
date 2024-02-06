@@ -5,11 +5,11 @@ import { ImGui, ImGui_Impl } from '@zhobo63/imgui-ts';
 
 import { ControllerClient } from './ControllerClient';
 
+import { Arrow } from './gui/Arrow';
 import { Box } from './gui/Box';
 import { Sphere } from './gui/Sphere';
 import { TransformControls } from './gui/TransformControls';
 
-import { Axes } from './types/Axes';
 import { Color } from './types/Color';
 
 export class GUI {
@@ -21,6 +21,10 @@ export class GUI {
   loader: GLTFLoader;
   orbit: OrbitControls;
   controls: TransformControls[] = [];
+
+  arrow() {
+    return new Arrow(this.scene);
+  }
 
   box(width: number, height: number, depth: number, color: Color) {
     return new Box(this.scene, width, height, depth, color);

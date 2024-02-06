@@ -19,6 +19,10 @@ sva::PTransformd transform_ro{sva::RotZ(-M_PI), Eigen::Vector3d(1., 0., 0.)};
 sva::PTransformd transform_int{Eigen::Vector3d{0., 1., 0.}};
 Eigen::Vector3d xytheta_int{0., 2., M_PI / 3};
 Eigen::VectorXd xythetaz_int;
+Eigen::Vector3d arrow_start{0.5, 0.5, 0.};
+Eigen::Vector3d arrow_end{0.5, 1., -0.5};
+sva::ForceVecd force_force{{0., 0., 0.}, {-50., 50., 100.}};
+sva::PTransformd force_pos{Eigen::Vector3d{2, 2, 0}};
 
 } // namespace
 
@@ -60,12 +64,12 @@ void TestServer::setup()
                     mc_rtc::gui::Transform("ReadOnly Transform", [this]() { return transform_ro; }),
                     mc_rtc::gui::Transform(
                         "Interactive Transform", [this]() { return transform_int; },
-                        [this](const sva::PTransformd & p) { transform_int = p; }),
+                        [this](const sva::PTransformd & p) { transform_int = p; }));
+  setup_3d_elements({"GUI Markers", "XYTheta"},
                     mc_rtc::gui::XYTheta("XYTheta ReadOnly",
                                          [this]() -> std::array<double, 4> {
                                            return {xytheta_int.x(), xytheta_int.y(), xytheta_int.z(), 0.1};
-                                         }));
-  setup_3d_elements({"GUI Markers", "XYTheta"},
+                                         }),
                     mc_rtc::gui::XYTheta(
                         "XYTheta", [this]() { return xytheta_int; },
                         [this](const Eigen::VectorXd & vec) { xytheta_int = vec.head<3>(); }),
@@ -81,6 +85,35 @@ void TestServer::setup()
   setup_3d_elements({"GUI Markers", "Point3D"},
                     mc_rtc::gui::Point3DRO("Read only", const_cast<const Eigen::Vector3d &>(point3d_ro)),
                     mc_rtc::gui::Point3D("Interactive", point3d_int));
+  mc_rtc::gui::ArrowConfig arrow_config({1., 0., 0.});
+  arrow_config.start_point_scale = 0.02;
+  arrow_config.end_point_scale = 0.02;
+  setup_3d_elements({"GUI Markers", "Arrows"},
+                    mc_rtc::gui::Arrow(
+                        "ArrowRO", arrow_config,
+                        []() {
+                          return Eigen::Vector3d{2, 2, 0};
+                        },
+                        []() {
+                          return Eigen::Vector3d{2.5, 2.5, 0.5};
+                        }),
+                    mc_rtc::gui::Arrow(
+                        "Arrow", arrow_config, [this]() { return arrow_start; },
+                        [this](const Eigen::Vector3d & start) { arrow_start = start; }, [this]() { return arrow_end; },
+                        [this](const Eigen::Vector3d & end) { arrow_end = end; }),
+                    mc_rtc::gui::Force(
+                        "ForceRO", mc_rtc::gui::ForceConfig(mc_rtc::gui::Color(1., 0., 0.)),
+                        []() {
+                          return sva::ForceVecd(Eigen::Vector3d{0., 0., 0.}, Eigen::Vector3d{10., 0., 100.});
+                        },
+                        []() {
+                          return sva::PTransformd{Eigen::Vector3d{2, 2, 0}};
+                        }),
+                    mc_rtc::gui::Force(
+                        "Force", mc_rtc::gui::ForceConfig(mc_rtc::gui::Color(0., 1., 0.)),
+                        [this]() { return force_force; }, [this](const sva::ForceVecd & force) { force_force = force; },
+                        []() { return force_pos; }),
+                    mc_rtc::gui::Transform("Force frame", force_pos));
   builder.addElement({"Checkbox"}, mc_rtc::gui::Checkbox("Hello world", checked_));
   builder.addElement({"Labels"}, mc_rtc::gui::Label("Hello", "world"),
                      mc_rtc::gui::ArrayLabel("Time", {"Minutes", "Seconds"},

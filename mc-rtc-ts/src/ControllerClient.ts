@@ -1,9 +1,13 @@
+import * as THREE from 'three';
+
 import { ArrayInput } from './widgets/ArrayInput';
 import { ArrayLabel } from './widgets/ArrayLabel';
+import { Arrow } from './widgets/Arrow';
 import { Button } from './widgets/Button';
 import { Checkbox } from './widgets/Checkbox';
 import { ComboInput } from './widgets/ComboInput';
 import { DataComboInput } from './widgets/DataComboInput';
+import { Force } from './widgets/Force';
 import { IntegerInput } from './widgets/IntegerInput';
 import { Label } from './widgets/Label';
 import { NumberInput } from './widgets/NumberInput';
@@ -20,6 +24,8 @@ import { Elements } from './types/Elements';
 import { Request } from './types/Request';
 import { PROTOCOL_VERSION } from './types/ProtocolVersion';
 
+import { ArrowConfig } from './types/ArrowConfig';
+import { ForceConfig } from './types/ForceConfig';
 import { PointConfig } from './types/PointConfig';
 
 import { pt_to_array } from './widgets/utils';
@@ -181,6 +187,39 @@ export class ControllerClient {
           const ctor = ro ? ArrayLabel : ArrayInput;
           const tf_w = cat.widget(ctor_3d, widget_name + '_xytheta', sid, widget_name, ro, pos);
           cat.widget(ctor, widget_name, sid, ['X', 'Y', 'Theta', 'Altitude'], pos, tf_w);
+          break;
+        }
+        case Elements.Arrow: {
+          const start = new THREE.Vector3(...widget_data[3]);
+          const end = new THREE.Vector3(...widget_data[4]);
+          const ro: boolean = widget_data[5];
+          const config: ArrowConfig = new ArrowConfig();
+          if (widget_data.length > 6) {
+            config.fromMessage(widget_data[6]);
+          }
+          const ctor = ro ? ArrayLabel : ArrayInput;
+          const tf_w = cat.widget(Arrow, widget_name + '_arrow', sid, widget_name, start, end, config, ro);
+          cat.widget(
+            ctor,
+            widget_name,
+            sid,
+            ['tx_0', 'ty_0', 'tz_0', 'tx_1', 'ty_1', 'tz_1'],
+            start.toArray().concat(end.toArray()),
+            tf_w
+          );
+          break;
+        }
+        case Elements.Force: {
+          const force: number[] = widget_data[3];
+          const pt: number[] = widget_data[4];
+          const ro: boolean = widget_data[5];
+          const config: ForceConfig = new ForceConfig();
+          if (widget_data.length > 6) {
+            config.fromMessage(widget_data[6]);
+          }
+          const ctor = ro ? ArrayLabel : ArrayInput;
+          const tf_w = cat.widget(Force, widget_name + '_force', sid, widget_name, force, pt, config);
+          cat.widget(ctor, widget_name, sid, ['cx', 'cy', 'cz', 'fx', 'fy', 'fz'], force, tf_w);
           break;
         }
         default:
