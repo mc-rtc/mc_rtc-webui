@@ -130,9 +130,12 @@ export class GUI {
     client.gui = this;
     THREE.Object3D.DEFAULT_UP = new THREE.Vector3(0, 0, 1);
     this.scene = new THREE.Scene();
+    // This box is useless but it ensures the grid is always visible
+    const object = this.box(0.001, 0.001, 0.001, new Color([0, 0, 0, 0]));
     const grid = new THREE.GridHelper(30, 30, 0x444444, 0x888888);
     grid.rotateX(3.14 / 2);
-    this.scene.add(grid);
+    object.add(grid);
+    this.scene.add(object);
     this.client = client;
   }
 }
