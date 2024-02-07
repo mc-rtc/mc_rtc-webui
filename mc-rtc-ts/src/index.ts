@@ -68,5 +68,9 @@ async function init() {
   gui = new GUI(client);
   gui.run();
   await initSocket();
+
+  window.addEventListener('resize', () => {
+    gui.renderer.setSize(window.innerWidth, window.innerHeight);
+  });
 }
 init();
