@@ -1,7 +1,19 @@
 #include "TestServer.h"
 
+#include <mc_rbdyn/RobotLoader.h>
+#include <mc_rbdyn/Robots.h>
+
 namespace
 {
+
+std::shared_ptr<mc_rbdyn::Robots> robots = []()
+{
+  auto rm = mc_rbdyn::RobotLoader::get_robot_module("JVRC1");
+  auto robots = mc_rbdyn::Robots::make();
+  robots->load(*rm);
+  return robots;
+}();
+mc_rbdyn::Robot & robot = robots->robot();
 
 bool checked_ = false;
 std::string str_input = "Hello world";
@@ -23,6 +35,120 @@ Eigen::Vector3d arrow_start{0.5, 0.5, 0.};
 Eigen::Vector3d arrow_end{0.5, 1., -0.5};
 sva::ForceVecd force_force{{0., 0., 0.}, {-50., 50., 100.}};
 sva::PTransformd force_pos{Eigen::Vector3d{2, 2, 0}};
+
+struct SelectVisual
+{
+  std::string selected;
+  mc_rtc::gui::Color color = mc_rtc::gui::Color::Red;
+  double sphere_radius = 1.0;
+  double cylinder_radius = 1.0;
+  double cylinder_length = 1.0;
+  Eigen::Vector3d box_dim = Eigen::Vector3d::Ones();
+  std::string robot_body = "NECK_P_S";
+  sva::PTransformd visual_pos = sva::PTransformd::Identity();
+
+  rbd::parsers::Visual visual;
+
+  void addToGUI(mc_rtc::gui::StateBuilder & gui)
+  {
+    std::vector<std::string> category = {"Visual", "Any"};
+    std::vector<std::string> body_choices;
+    body_choices.reserve(robot.mb().bodies().size());
+    for(const auto & b : robot.mb().bodies())
+    {
+      if(robot.module()._visual.count(b.name())) { body_choices.push_back(b.name()); }
+    }
+    gui.addElement(category,
+                   mc_rtc::gui::ComboInput(
+                       "Choice", {"", "sphere", "box", "cylinder", "mesh"}, [this]() { return selected; },
+                       [this, &gui](const std::string & c)
+                       {
+                         selected = c;
+                         addVisualToGUI(gui);
+                       }),
+                   mc_rtc::gui::NumberInput(
+                       "Sphere radius", [this]() { return sphere_radius; },
+                       [this](double r)
+                       {
+                         sphere_radius = r;
+                         update_visual();
+                       }),
+                   mc_rtc::gui::NumberInput(
+                       "Cylinder radius", [this]() { return cylinder_radius; },
+                       [this](double r)
+                       {
+                         cylinder_radius = r;
+                         update_visual();
+                       }),
+                   mc_rtc::gui::NumberInput(
+                       "Cylinder length", [this]() { return cylinder_length; },
+                       [this](double r)
+                       {
+                         cylinder_length = r;
+                         update_visual();
+                       }),
+                   mc_rtc::gui::ArrayInput(
+                       "Box dimensions", [this]() -> const Eigen::Vector3d & { return box_dim; },
+                       [this](const Eigen::Vector3d & d)
+                       {
+                         box_dim = d;
+                         update_visual();
+                       }),
+                   mc_rtc::gui::ArrayInput(
+                       "Color", {"r", "g", "b", "a"},
+                       [this]() {
+                         return std::array<double, 4>{color.r, color.g, color.b, color.a};
+                       },
+                       [this](const std::array<double, 4> & arr)
+                       {
+                         color.r = arr[0];
+                         color.g = arr[1];
+                         color.b = arr[2];
+                         color.a = arr[3];
+                         update_visual();
+                       }),
+                   mc_rtc::gui::ComboInput(
+                       "body", body_choices, [this]() { return robot_body; },
+                       [this, &gui](const std::string & b)
+                       {
+                         robot_body = b;
+                         addVisualToGUI(gui);
+                       }));
+  }
+
+  void update_visual()
+  {
+    if(selected == "sphere") { visual = mc_rtc::makeVisualSphere(sphere_radius, color); }
+    if(selected == "cylinder") { visual = mc_rtc::makeVisualCylinder(cylinder_radius, cylinder_length, color); }
+    if(selected == "box") { visual = mc_rtc::makeVisualBox(box_dim, color); }
+  }
+
+  void addVisualToGUI(mc_rtc::gui::StateBuilder & gui)
+  {
+    std::vector<std::string> category = {"Visual", "Any", "Visual"};
+    gui.removeCategory(category);
+    if(selected.empty()) { return; }
+    update_visual();
+    gui.addElement(category, mc_rtc::gui::Transform("Pose", visual_pos));
+    if(selected != "mesh")
+    {
+      gui.addElement(category, mc_rtc::gui::Visual(
+                                   "Object", [this]() -> const rbd::parsers::Visual & { return visual; },
+                                   [this]() -> const sva::PTransformd & { return visual_pos; }));
+    }
+    else
+    {
+      const auto & visuals = robot.module()._visual.at(robot_body);
+      for(const auto & v : visuals)
+      {
+        gui.addElement(category, mc_rtc::gui::Visual(
+                                     v.name, [&]() -> const auto & { return v; },
+                                     [this]() -> const auto & { return visual_pos; }));
+      }
+    }
+  }
+};
+SelectVisual select_visual;
 
 } // namespace
 
@@ -230,6 +356,7 @@ void TestServer::setup()
                           color.a = (1 + sin(t_)) / 2;
                           return color;
                         }));
+  select_visual.addToGUI(builder);
   builder.addElement({"Checkbox"}, mc_rtc::gui::Checkbox("Hello world", checked_));
   builder.addElement({"Labels"}, mc_rtc::gui::Label("Hello", "world"),
                      mc_rtc::gui::ArrayLabel("Time", {"Minutes", "Seconds"},
