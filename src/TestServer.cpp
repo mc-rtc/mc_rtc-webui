@@ -114,6 +114,122 @@ void TestServer::setup()
                         [this]() { return force_force; }, [this](const sva::ForceVecd & force) { force_force = force; },
                         []() { return force_pos; }),
                     mc_rtc::gui::Transform("Force frame", force_pos));
+  setup_3d_elements(
+      {"Visual", "Ellipsoid"},
+      mc_rtc::gui::Ellipsoid(
+          "Fixed size/Fixed color", Eigen::Vector3d(0.25, 0.5, 1.0),
+          []() { return sva::PTransformd(Eigen::Vector3d(-4, 0, 1)); }, mc_rtc::gui::Color::Blue),
+      mc_rtc::gui::Ellipsoid(
+          "Fixed size/Varying color", Eigen::Vector3d(0.25, 0.5, 1.0),
+          []() { return sva::PTransformd(Eigen::Vector3d(-4, 1, 1)); },
+          [this]()
+          {
+            auto color = mc_rtc::gui::Color::Yellow;
+            color.a = (1 + cos(t_)) / 2;
+            return color;
+          }),
+      mc_rtc::gui::Ellipsoid(
+          "Varying size/Fixed color",
+          [this]() -> Eigen::Vector3d { return Eigen::Vector3d(0.25, 0.5, 1.0) * (1 + (1 + cos(t_)) / 2); },
+          []() { return sva::PTransformd(Eigen::Vector3d(-4, 2, 1)); }),
+      mc_rtc::gui::Ellipsoid(
+          "Varying size/Varying color",
+          [this]() -> Eigen::Vector3d { return Eigen::Vector3d(0.25, 0.5, 1.0) * (1 + (1 + sin(t_)) / 2); },
+          []() { return sva::PTransformd(Eigen::Vector3d(-4, 3, 1)); },
+          [this]()
+          {
+            auto color = mc_rtc::gui::Color::Green;
+            color.a = (1 + sin(t_)) / 2;
+            return color;
+          }));
+  setup_3d_elements({"Visual", "Cylinder"},
+                    mc_rtc::gui::Cylinder(
+                        "Fixed size/Fixed color", {0.125, 1.0},
+                        []() { return sva::PTransformd(Eigen::Vector3d(-3, 0, 1)); }, mc_rtc::gui::Color::Blue),
+                    mc_rtc::gui::Cylinder(
+                        "Fixed size/Varying color", {0.125, 1.0},
+                        []() { return sva::PTransformd(Eigen::Vector3d(-3, 1, 1)); },
+                        [this]()
+                        {
+                          auto color = mc_rtc::gui::Color::Yellow;
+                          color.a = (1 + cos(t_)) / 2;
+                          return color;
+                        }),
+                    mc_rtc::gui::Cylinder(
+                        "Varying size/Fixed color",
+                        [this]() -> mc_rtc::gui::CylinderParameters
+                        {
+                          double m = (1 + (1 + cos(t_)) / 2);
+                          return {0.125 * m, 0.5 * m};
+                        },
+                        []() { return sva::PTransformd(Eigen::Vector3d(-3, 2, 1)); }),
+                    mc_rtc::gui::Cylinder(
+                        "Varying size/Varying color",
+                        [this]() -> mc_rtc::gui::CylinderParameters
+                        {
+                          double m = (1 + (1 + sin(t_)) / 2);
+                          return {0.125 * m, 0.5 * m};
+                        },
+                        []() { return sva::PTransformd(Eigen::Vector3d(-3, 3, 1)); },
+                        [this]()
+                        {
+                          auto color = mc_rtc::gui::Color::Green;
+                          color.a = (1 + sin(t_)) / 2;
+                          return color;
+                        }));
+  setup_3d_elements(
+      {"Visual", "Box"},
+      mc_rtc::gui::Box(
+          "Fixed size/Fixed color", Eigen::Vector3d(0.25, 0.5, 1.0),
+          []() { return sva::PTransformd(Eigen::Vector3d(-2, 0, 1)); }, mc_rtc::gui::Color::Blue),
+      mc_rtc::gui::Box(
+          "Fixed size/Varying color", Eigen::Vector3d(0.25, 0.5, 1.0),
+          []() { return sva::PTransformd(Eigen::Vector3d(-2, 1, 1)); },
+          [this]()
+          {
+            auto color = mc_rtc::gui::Color::Yellow;
+            color.a = (1 + cos(t_)) / 2;
+            return color;
+          }),
+      mc_rtc::gui::Box(
+          "Varying size/Fixed color",
+          [this]() -> Eigen::Vector3d { return Eigen::Vector3d(0.25, 0.5, 1.0) * (1 + (1 + cos(t_)) / 2); },
+          []() { return sva::PTransformd(Eigen::Vector3d(-2, 2, 1)); }),
+      mc_rtc::gui::Box(
+          "Varying size/Varying color",
+          [this]() -> Eigen::Vector3d { return Eigen::Vector3d(0.25, 0.5, 1.0) * (1 + (1 + sin(t_)) / 2); },
+          []() { return sva::PTransformd(Eigen::Vector3d(-2, 3, 1)); },
+          [this]()
+          {
+            auto color = mc_rtc::gui::Color::Green;
+            color.a = (1 + sin(t_)) / 2;
+            return color;
+          }));
+  setup_3d_elements({"Visual", "Sphere"},
+                    mc_rtc::gui::Sphere(
+                        "Fixed radius/Fixed color", 0.25, []() { return sva::PTransformd(Eigen::Vector3d(-1, 0, 1)); },
+                        mc_rtc::gui::Color::Blue),
+                    mc_rtc::gui::Sphere(
+                        "Fixed radius/Varying color", 0.25,
+                        []() { return sva::PTransformd(Eigen::Vector3d(-1, 1, 1)); },
+                        [this]()
+                        {
+                          auto color = mc_rtc::gui::Color::Yellow;
+                          color.a = (1 + cos(t_)) / 2;
+                          return color;
+                        }),
+                    mc_rtc::gui::Sphere(
+                        "Varying radius/Fixed color", [this]() { return 0.25 * (1 + (1 + cos(t_)) / 2); },
+                        []() { return sva::PTransformd(Eigen::Vector3d(-1, 2, 1)); }),
+                    mc_rtc::gui::Sphere(
+                        "Varying radius/Varying color", [this]() { return 0.25 * (1 + (1 + sin(t_)) / 2); },
+                        []() { return sva::PTransformd(Eigen::Vector3d(-1, 3, 1)); },
+                        [this]()
+                        {
+                          auto color = mc_rtc::gui::Color::Green;
+                          color.a = (1 + sin(t_)) / 2;
+                          return color;
+                        }));
   builder.addElement({"Checkbox"}, mc_rtc::gui::Checkbox("Hello world", checked_));
   builder.addElement({"Labels"}, mc_rtc::gui::Label("Hello", "world"),
                      mc_rtc::gui::ArrayLabel("Time", {"Minutes", "Seconds"},

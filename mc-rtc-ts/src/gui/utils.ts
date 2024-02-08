@@ -8,5 +8,11 @@ export function makeColor(color: Color) {
 
 export function makeMaterial(color: Color) {
   const rgb = makeColor(color);
-  return new THREE.MeshBasicMaterial({ color: rgb, transparent: color.a != 1.0, opacity: color.a });
+  return new THREE.MeshStandardMaterial({ color: rgb, transparent: color.a != 1.0, opacity: color.a });
+}
+
+export function updateMaterial(material: THREE.MeshStandardMaterial, color: Color) {
+  material.color = makeColor(color);
+  material.transparent = color.a != 1.0;
+  material.opacity = color.a;
 }

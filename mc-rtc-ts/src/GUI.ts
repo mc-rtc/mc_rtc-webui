@@ -7,6 +7,7 @@ import { ControllerClient } from './ControllerClient';
 
 import { Arrow } from './gui/Arrow';
 import { Box } from './gui/Box';
+import { Cylinder } from './gui/Cylinder';
 import { Sphere } from './gui/Sphere';
 import { TransformControls } from './gui/TransformControls';
 
@@ -30,6 +31,10 @@ export class GUI {
     return new Box(this.scene, width, height, depth, color);
   }
 
+  cylinder(radius: number, height: number, color: Color) {
+    return new Cylinder(this.scene, radius, height, color);
+  }
+
   control() {
     const control = new TransformControls(this.camera, this.renderer.domElement);
     this.controls.push(control);
@@ -47,7 +52,7 @@ export class GUI {
     ImGui.Text(`Want WantCaptureKeyboard: ${ImGui.GetIO().WantCaptureKeyboard}`);
     ImGui.Text(`Want WantCaptureMouse: ${ImGui.GetIO().WantCaptureMouse}`);
     if (ImGui.Button('Add controled box')) {
-      const box = this.box(0.2, 0.2, 0.2, new Color([0, 0, 1, 1]));
+      const box = this.box(1.0, 2.0, 4.0, new Color([0, 0, 1, 1]));
       const control = this.control();
       control.attach(box);
     }

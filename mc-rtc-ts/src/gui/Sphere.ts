@@ -1,15 +1,22 @@
 import * as THREE from 'three';
 
-import { Color } from '../types/Color';
-import { makeMaterial } from './utils';
+import { ColoredMesh } from './ColoredMesh';
 
-export class Sphere extends THREE.Mesh {
+import { Color } from '../types/Color';
+
+export class Sphere extends ColoredMesh {
   private scene: THREE.Scene;
 
   constructor(scene: THREE.Scene, radius: number, color: Color) {
-    super(new THREE.SphereGeometry(radius), makeMaterial(color));
+    super(new THREE.SphereGeometry(radius), color);
     this.scene = scene;
     this.scene.add(this);
+  }
+
+  update(radius: number) {
+    if (this.geometry instanceof THREE.SphereGeometry && this.geometry.parameters.radius != radius) {
+      this.geometry = new THREE.SphereGeometry(radius);
+    }
   }
 
   cleanup() {

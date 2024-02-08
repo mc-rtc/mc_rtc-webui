@@ -1,15 +1,28 @@
 import * as THREE from 'three';
 
-import { Color } from '../types/Color';
-import { makeMaterial } from './utils';
+import { ColoredMesh } from './ColoredMesh';
 
-export class Box extends THREE.Mesh {
+import { Color } from '../types/Color';
+
+export class Box extends ColoredMesh {
   private scene: THREE.Scene;
 
   constructor(scene: THREE.Scene, width: number, height: number, depth: number, color: Color) {
-    super(new THREE.BoxGeometry(width, height, depth), makeMaterial(color));
+    super(new THREE.BoxGeometry(width, height, depth), color);
     this.scene = scene;
     this.scene.add(this);
+  }
+
+  update(width: number, height: number, depth: number) {
+    if (this.geometry instanceof THREE.BoxGeometry) {
+      if (
+        this.geometry.parameters.width != width ||
+        this.geometry.parameters.height != height ||
+        this.geometry.parameters.depth != depth
+      ) {
+        this.geometry = new THREE.BoxGeometry(width, height, depth);
+      }
+    }
   }
 
   cleanup() {

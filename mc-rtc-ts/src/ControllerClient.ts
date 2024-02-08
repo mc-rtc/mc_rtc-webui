@@ -18,6 +18,7 @@ import { StringInput } from './widgets/StringInput';
 import { Transform } from './widgets/Transform';
 import { XYTheta } from './widgets/XYTheta';
 import { XYZTheta } from './widgets/XYZTheta';
+import { Visual } from './widgets/Visual';
 
 import { Category } from './widgets/Category';
 import { Elements } from './types/Elements';
@@ -27,6 +28,8 @@ import { PROTOCOL_VERSION } from './types/ProtocolVersion';
 import { ArrowConfig } from './types/ArrowConfig';
 import { ForceConfig } from './types/ForceConfig';
 import { PointConfig } from './types/PointConfig';
+
+import { rbd_Visual } from './types/rbd_Visual';
 
 import { pt_to_array } from './widgets/utils';
 
@@ -222,9 +225,50 @@ export class ControllerClient {
           cat.widget(ctor, widget_name, sid, ['cx', 'cy', 'cz', 'fx', 'fy', 'fz'], force, tf_w);
           break;
         }
-        default:
+        case Elements.Visual: {
+          const visual: rbd_Visual = new rbd_Visual().fromObject(widget_data[3]);
+          let pt: number[] = widget_data[4];
+          if (pt.length === 3) {
+            pt = [1, 0, 0, 0, 1, 0, 0, 0, 1, ...pt];
+          }
+          cat.widget(Visual, widget_name, sid, visual, pt);
           break;
-        // console.error(`Cannot handle widget type: ${widget_tid}`);
+        }
+        case Elements.Trajectory: {
+          // FIXME Implement
+          break;
+        }
+        case Elements.Polygon: {
+          // FIXME Implement
+          break;
+        }
+        case Elements.PolyhedronTrianglesList: {
+          // FIXME Implement
+          break;
+        }
+        case Elements.PolyhedronVerticesTriangles: {
+          // FIXME Implement
+          break;
+        }
+        case Elements.Schema: {
+          // FIXME Implement (probably not)
+          break;
+        }
+        case Elements.Form: {
+          // FIXME Implement
+          break;
+        }
+        case Elements.Table: {
+          // FIXME Implement
+          break;
+        }
+        case Elements.Robot: {
+          // FIXME Implement
+          break;
+        }
+        default:
+          console.error(`Cannot handle widget type: ${widget_tid}`);
+          break;
       }
     }
     let next_category: string[] = parent;
