@@ -11,6 +11,7 @@ import {
 
 import { Box } from '../gui/Box';
 import { Cylinder } from '../gui/Cylinder';
+import { Mesh } from '../gui/Mesh';
 import { Sphere } from '../gui/Sphere';
 
 import { ControllerClient } from '../ControllerClient';
@@ -19,12 +20,10 @@ import { GUI } from '../GUI';
 import { pt_to_matrix4 } from '../widgets/utils';
 
 export class Visual {
-  private client: ControllerClient;
   private gui: GUI;
-  private object: Box | Cylinder | Sphere | null = null;
+  private object: Box | Cylinder | Mesh | Sphere | null = null;
 
   constructor(client: ControllerClient) {
-    this.client = client;
     this.gui = client.gui;
   }
   update(visual: rbd_Visual, pt: number[]) {
@@ -53,7 +52,11 @@ export class Visual {
         this.update_object_type(this.gui.sphere(geometry.radius, color));
       }
     } else if (geometry instanceof GeometryMesh) {
-      // FIXME Implement Mesh retrieval
+      if (this.object instanceof Mesh) {
+        this.object.update(geometry.filename, geometry.scaleV);
+      } else {
+        this.update_object_type(this.gui.mesh(geometry.filename, geometry.scaleV));
+      }
     } else if (geometry instanceof GeometrySuperellipsoid) {
       console.error(`Superellipsoids are not handled by this interface`);
       this.update_object_type(null);
@@ -68,7 +71,7 @@ export class Visual {
     }
   }
 
-  private update_object_type(object: Box | Cylinder | Sphere | null) {
+  private update_object_type(object: Box | Cylinder | Mesh | Sphere | null) {
     if (this.object) {
       this.object.cleanup();
     }

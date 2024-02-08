@@ -6,6 +6,7 @@
 #include <variant>
 
 #include "Base64.h"
+#include "ModelStore.h"
 #include "TestServer.h"
 
 /* Note that uWS::SSLApp({options}) is the same as uWS::App() when compiled without SSL support */
@@ -17,6 +18,7 @@ using WebSocket = uWS::WebSocket<use_ssl, is_server, PerSocketData>;
 
 int main()
 {
+  ModelStore model_store;
   std::mutex server_mutex;
   uWS::App::WebSocketBehavior<PerSocketData> behavior;
   TestServer server;
@@ -82,13 +84,32 @@ int main()
              res->writeHeader("Content-Type", "text/javascript; charset=utf-8");
              res->end(content_);
            })
-      .get("/models/*",
-           [&content_](uWS::HttpResponse<false> * res, uWS::HttpRequest * req)
+      .get("/favicon.ico",
+           [&content_](uWS::HttpResponse<false> * res, auto * /*req*/)
            {
-             std::cout << "Requested: " << req->getUrl() << "\n";
-             std::ifstream ifs("/home/gergondet/devel/sandbox/mc_rtc-webui/build/" + std::string(req->getUrl()));
+             std::ifstream ifs("/home/gergondet/devel/sandbox/mc_rtc-webui/data/favicon.ico");
              content_ = {std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
+             res->writeHeader("Content-Type", "text/javascript; charset=utf-8");
              res->end(content_);
+           })
+      .get("/get_model",
+           [&content_, &model_store](uWS::HttpResponse<false> * res, uWS::HttpRequest * req)
+           {
+             auto gltf_file = model_store.get_model(std::string(req->getQuery("path")));
+             if(gltf_file.empty()) { res->end(""); }
+             else
+             {
+               std::ifstream ifs(gltf_file);
+               content_ = {std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
+               res->end(content_);
+             }
+           })
+      .get("/*",
+           [](uWS::HttpResponse<false> * res, uWS::HttpRequest * req)
+           {
+             std::cout << "cannot handled request: " << req->getUrl() << "\n";
+             std::cout << "req->query: " << req->getQuery() << "\n";
+             res->end("");
            })
       .ws<PerSocketData>("/*", std::move(behavior))
       .listen(8080,

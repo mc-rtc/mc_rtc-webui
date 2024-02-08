@@ -8,6 +8,7 @@ import { ControllerClient } from './ControllerClient';
 import { Arrow } from './gui/Arrow';
 import { Box } from './gui/Box';
 import { Cylinder } from './gui/Cylinder';
+import { Mesh } from './gui/Mesh';
 import { Sphere } from './gui/Sphere';
 import { TransformControls } from './gui/TransformControls';
 
@@ -31,15 +32,19 @@ export class GUI {
     return new Box(this.scene, width, height, depth, color);
   }
 
-  cylinder(radius: number, height: number, color: Color) {
-    return new Cylinder(this.scene, radius, height, color);
-  }
-
   control() {
     const control = new TransformControls(this.camera, this.renderer.domElement);
     this.controls.push(control);
     this.scene.add(control);
     return control;
+  }
+
+  cylinder(radius: number, height: number, color: Color) {
+    return new Cylinder(this.scene, radius, height, color);
+  }
+
+  mesh(filename: string, scale: THREE.Vector3) {
+    return new Mesh(this, filename, scale);
   }
 
   sphere(radius: number, color: Color) {

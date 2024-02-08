@@ -114,6 +114,7 @@ struct SelectVisual
                          robot_body = b;
                          addVisualToGUI(gui);
                        }));
+    addVisualToGUI(gui);
   }
 
   void update_visual()
