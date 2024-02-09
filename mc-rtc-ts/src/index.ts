@@ -9,7 +9,7 @@ import { GUI } from './GUI';
 import { Socket, Protocol } from 'nanomsg-browser';
 
 let gui: GUI;
-const socket = new WebSocket('ws://localhost:8080');
+const socket = new WebSocket(`ws://${window.location.hostname}:8080`);
 const client = new ControllerClient(socket);
 
 const client_socket = new Socket({
@@ -26,12 +26,12 @@ client_socket.on('data', (msg) => {
 });
 client_socket.on('error', (e) => {
   client.update([]);
-  console.log('nanomsg error:', e);
+  console.log('nanomsg error:', JSON.stringify(e));
 });
 client_socket.on('end', (url) => {
   console.log('finished', url);
 });
-client_socket.connect('ws://localhost:8181');
+client_socket.connect(`ws://${window.location.hostname}:8181`);
 
 async function initSocket() {
   socket.binaryType = 'arraybuffer';

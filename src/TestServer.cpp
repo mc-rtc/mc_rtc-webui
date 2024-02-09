@@ -36,6 +36,8 @@ Eigen::Vector3d arrow_end{0.5, 1., -0.5};
 sva::ForceVecd force_force{{0., 0., 0.}, {-50., 50., 100.}};
 sva::PTransformd force_pos{Eigen::Vector3d{2, 2, 0}};
 
+bool with_robot_visual = false;
+
 struct SelectVisual
 {
   std::string selected;
@@ -150,6 +152,24 @@ struct SelectVisual
   }
 };
 SelectVisual select_visual;
+
+void addRobotAsVisuals(mc_rtc::gui::StateBuilder & gui)
+{
+  for(size_t i = 0; i < robot.mb().bodies().size(); ++i)
+  {
+    const auto & body = robot.mb().body(static_cast<int>(i)).name();
+    auto visuals_it = robot.module()._visual.find(body);
+    if(visuals_it == robot.module()._visual.end()) { continue; }
+    const auto & visuals = visuals_it->second;
+    for(size_t j = 0; j < visuals.size(); ++j)
+    {
+      const auto & v = visuals[j];
+      gui.addElement({"Robot", "Visuals"}, mc_rtc::gui::Visual(
+                                               fmt::format("{}_{}", body, j), [&]() -> const auto & { return v; },
+                                               [&, i]() -> const auto & { return robot.mbc().bodyPosW[i]; }));
+    }
+  }
+}
 
 } // namespace
 
@@ -358,6 +378,14 @@ void TestServer::setup()
                           return color;
                         }));
   select_visual.addToGUI(builder);
+  builder.addElement({"Robot"}, mc_rtc::gui::Checkbox(
+                                    "Robot as visuals", [this]() { return with_robot_visual; },
+                                    [this]()
+                                    {
+                                      if(with_robot_visual) { builder.removeCategory({"Robot", "Visuals"}); }
+                                      else { addRobotAsVisuals(builder); }
+                                      with_robot_visual = !with_robot_visual;
+                                    }));
   builder.addElement({"Checkbox"}, mc_rtc::gui::Checkbox("Hello world", checked_));
   builder.addElement({"Labels"}, mc_rtc::gui::Label("Hello", "world"),
                      mc_rtc::gui::ArrayLabel("Time", {"Minutes", "Seconds"},

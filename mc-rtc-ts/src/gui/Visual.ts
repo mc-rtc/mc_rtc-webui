@@ -64,7 +64,7 @@ export class Visual {
       this.update_object_type(null);
     }
     if (this.object) {
-      const m4 = pt_to_matrix4(pt);
+      const m4 = pt_to_matrix4(pt).multiply(pt_to_matrix4(visual.origin));
       this.object.quaternion.setFromRotationMatrix(m4);
       this.object.position.setFromMatrixPosition(m4);
       this.object.setColor(color);
