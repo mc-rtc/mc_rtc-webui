@@ -3,6 +3,8 @@
 #include <mc_rbdyn/RobotLoader.h>
 #include <mc_rbdyn/Robots.h>
 
+#include <SpaceVecAlg/Conversions.h>
+
 namespace
 {
 
@@ -35,6 +37,24 @@ Eigen::Vector3d arrow_start{0.5, 0.5, 0.};
 Eigen::Vector3d arrow_end{0.5, 1., -0.5};
 sva::ForceVecd force_force{{0., 0., 0.}, {-50., 50., 100.}};
 sva::PTransformd force_pos{Eigen::Vector3d{2, 2, 0}};
+
+std::vector<Eigen::Vector3d> trajectory_ = {Eigen::Vector3d::UnitX(), Eigen::Vector3d::UnitY(),
+                                            -Eigen::Vector3d::UnitX(), -Eigen::Vector3d::UnitY()};
+std::vector<sva::PTransformd> poseTrajectory_ = {{sva::RotX<double>(0), {1, 1, 1}},
+                                                 {sva::RotX<double>(M_PI / 2), {1, -1, 2}},
+                                                 {sva::RotY<double>(-M_PI / 2) * sva::RotX<double>(M_PI), {1, 1, 3}}};
+
+sva::PTransformd lookAt(const Eigen::Vector3d & position, const Eigen::Vector3d & target, const Eigen::Vector3d & up)
+{
+  Eigen::Matrix3d R;
+  R.col(2) = (target - position).normalized();
+  R.col(0) = up.cross(R.col(2)).normalized();
+  R.col(1) = R.col(2).cross(R.col(0));
+  Eigen::Matrix4d view = Eigen::Matrix4d::Identity();
+  view.topLeftCorner<3, 3>() = R;
+  view.topRightCorner<3, 1>() = position;
+  return sva::conversions::fromHomogeneous(view);
+}
 
 bool with_robot_visual = false;
 
@@ -261,6 +281,17 @@ void TestServer::setup()
                         [this]() { return force_force; }, [this](const sva::ForceVecd & force) { force_force = force; },
                         []() { return force_pos; }),
                     mc_rtc::gui::Transform("Force frame", force_pos));
+  setup_3d_elements(
+      {"GUI Markers", "Trajectories"}, mc_rtc::gui::Trajectory("Vector3d", [this]() { return trajectory_; }),
+      mc_rtc::gui::Trajectory("PTransformd", {mc_rtc::gui::Color::Green}, [this]() { return poseTrajectory_; }),
+      mc_rtc::gui::Trajectory("Live 3D", {mc_rtc::gui::Color::Magenta},
+                              [this]() {
+                                return Eigen::Vector3d{cos(t_), sin(t_), 1.0};
+                              }),
+      mc_rtc::gui::Trajectory("Live transform", {mc_rtc::gui::Color::Black},
+                              [this]() {
+                                return lookAt({cos(t_), -1, sin(t_)}, {0, 0, 0}, Eigen::Vector3d::UnitZ());
+                              }));
   setup_3d_elements(
       {"Visual", "Ellipsoid"},
       mc_rtc::gui::Ellipsoid(

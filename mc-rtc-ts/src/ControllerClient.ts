@@ -15,6 +15,7 @@ import { NumberSlider } from './widgets/NumberSlider';
 import { Point3D } from './widgets/Point3D';
 import { Rotation } from './widgets/Rotation';
 import { StringInput } from './widgets/StringInput';
+import { Trajectory } from './widgets/Trajectory';
 import { Transform } from './widgets/Transform';
 import { XYTheta } from './widgets/XYTheta';
 import { XYZTheta } from './widgets/XYZTheta';
@@ -27,6 +28,7 @@ import { PROTOCOL_VERSION } from './types/ProtocolVersion';
 
 import { ArrowConfig } from './types/ArrowConfig';
 import { ForceConfig } from './types/ForceConfig';
+import { LineConfig } from './types/LineConfig';
 import { PointConfig } from './types/PointConfig';
 
 import { rbd_Visual } from './types/rbd_Visual';
@@ -235,7 +237,23 @@ export class ControllerClient {
           break;
         }
         case Elements.Trajectory: {
-          // FIXME Implement
+          const data = widget_data[3];
+          if (!Array.isArray(data)) {
+            console.error(`Expected to get array in Trajectory but got ${JSON.stringify(data)}`);
+            break;
+          }
+          const config = widget_data.length > 4 ? LineConfig.fromMessage(widget_data[4]) : new LineConfig();
+          const points: THREE.Vector3[] = [];
+          if (Array.isArray(data[0])) {
+            for (const p of data) {
+              const n = p.length;
+              points.push(new THREE.Vector3(p[n - 3], p[n - 2], p[n - 1]));
+            }
+          } else {
+            const n = data.length;
+            points.push(new THREE.Vector3(data[n - 3], data[n - 2], data[n - 1]));
+          }
+          cat.widget(Trajectory, widget_name, sid, points, config);
           break;
         }
         case Elements.Polygon: {
