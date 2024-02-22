@@ -8,47 +8,46 @@ import { LineConfig, LineStyle } from '../types/LineConfig';
 
 import { makeColor } from '../gui/utils';
 
-export class Trajectory extends Widget {
+export class Polygon extends Widget {
   private scene: THREE.Scene;
-  private visual: THREE.Line = null;
+  private visuals: THREE.Line[] = [];
   private material: THREE.LineBasicMaterial | THREE.LineDashedMaterial = null;
-  private points: THREE.Vector3[] = [];
 
   constructor(client: ControllerClient, category: string[], name: string, sid: number) {
     super(client, category, name, sid);
     this.scene = client.gui.scene;
   }
 
-  update(points: THREE.Vector3[], config: LineConfig) {
-    if (!this.visual) {
-      this.visual = new THREE.Line(new THREE.BufferGeometry(), null);
-      this.scene.add(this.visual);
-    }
+  update(polys: THREE.Vector3[][], config: LineConfig) {
     if (config.style === LineStyle.Solid && !(this.material instanceof THREE.LineBasicMaterial)) {
       this.material = new THREE.LineBasicMaterial();
-      this.visual.material = this.material;
     } else if (config.style === LineStyle.Dotted && !(this.material instanceof THREE.LineDashedMaterial)) {
       this.material = new THREE.LineDashedMaterial({ dashSize: 0.1, gapSize: 0.1 });
-      this.visual.material = this.material;
     }
     this.material.linewidth = config.width;
     this.material.color = makeColor(config.color);
     this.material.transparent = config.color.a != 1.0;
     this.material.opacity = config.color.a;
-    if (points.length === 1) {
-      this.points.push(points[0]);
-    } else {
-      this.points = points;
+    for (let i = 0; i < polys.length; ++i) {
+      if (this.visuals.length <= i) {
+        this.visuals.push(new THREE.Line(new THREE.BufferGeometry(), this.material));
+        this.scene.add(this.visuals[i]);
+      }
+      this.visuals[i].material = this.material;
+      this.visuals[i].geometry.setFromPoints(polys[i]);
+      if (this.material instanceof THREE.LineDashedMaterial) {
+        this.visuals[i].computeLineDistances();
+      }
     }
-    this.visual.geometry.setFromPoints(this.points);
-    if (this.material instanceof THREE.LineDashedMaterial) {
-      this.visual.computeLineDistances();
+    for (let i = polys.length; i < this.visuals.length; ++i) {
+      this.scene.remove(this.visuals[i]);
     }
+    this.visuals.splice(polys.length, this.visuals.length - polys.length);
   }
 
   cleanup() {
-    if (this.visual) {
-      this.scene.remove(this.visual);
+    for (const visual of this.visuals) {
+      this.scene.remove(visual);
     }
   }
 }

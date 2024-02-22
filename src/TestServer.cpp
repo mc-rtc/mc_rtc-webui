@@ -38,6 +38,93 @@ Eigen::Vector3d arrow_end{0.5, 1., -0.5};
 sva::ForceVecd force_force{{0., 0., 0.}, {-50., 50., 100.}};
 sva::PTransformd force_pos{Eigen::Vector3d{2, 2, 0}};
 
+auto orange = mc_rtc::gui::Color(1.0, 0.5, 0.0);
+auto pstyle = mc_rtc::gui::LineConfig(mc_rtc::gui::Color::Cyan, 0.1, mc_rtc::gui::LineStyle::Dotted);
+
+auto polygon = []()
+{
+  std::vector<Eigen::Vector3d> out;
+  out.push_back({1, 1, 0});
+  out.push_back({1, -1, 0});
+  out.push_back({-1, -1, 0});
+  out.push_back({-1, 1, 0});
+  return out;
+}();
+
+auto polygonColor = []()
+{
+  std::vector<Eigen::Vector3d> out;
+  out.push_back({1, 1, 1});
+  out.push_back({1, -1, 1});
+  out.push_back({-1, -1, 1});
+  out.push_back({-1, 1, 1});
+  return out;
+}();
+
+auto polygonLineConfig = []()
+{
+  std::vector<Eigen::Vector3d> out;
+  out.push_back({1, 1, 2});
+  out.push_back({1, -1, 2});
+  out.push_back({-1, -1, 2});
+  out.push_back({-1, 1, 2});
+  return out;
+}();
+
+auto makeFoot = [](const sva::PTransformd & pose)
+{
+  std::vector<Eigen::Vector3d> points;
+  double width = 0.1;
+  double length = 0.2;
+  points.push_back((sva::PTransformd{Eigen::Vector3d{length / 2, width / 2, 0}} * pose).translation());
+  points.push_back((sva::PTransformd{Eigen::Vector3d{length / 2, -width / 2, 0}} * pose).translation());
+  points.push_back((sva::PTransformd{Eigen::Vector3d{-length / 2, -width / 2, 0}} * pose).translation());
+  points.push_back((sva::PTransformd{Eigen::Vector3d{-length / 2, width / 2, 0}} * pose).translation());
+  return points;
+};
+
+auto polygons = []()
+{
+  std::vector<std::vector<Eigen::Vector3d>> out;
+  out.push_back(makeFoot({Eigen::Vector3d(0, -0.15, 0)}));
+  out.push_back(makeFoot({Eigen::Vector3d(0, 0.15, 0)}));
+  out.push_back(makeFoot({Eigen::Vector3d(0.3, -0.15, 0)}));
+  out.push_back(makeFoot({Eigen::Vector3d(0.6, 0.15, 0)}));
+  out.push_back(makeFoot({Eigen::Vector3d(0.6, -0.15, 0)}));
+  out.push_back(makeFoot({Eigen::Vector3d(0.9, 0.15, 0.2)}));
+  out.push_back(makeFoot({Eigen::Vector3d(1.2, -0.15, 0.4)}));
+  out.push_back(makeFoot({Eigen::Vector3d(1.2, 0.15, 0.4)}));
+  return out;
+}();
+
+auto polygonsColor = []()
+{
+  std::vector<std::vector<Eigen::Vector3d>> out;
+  out.push_back(makeFoot({Eigen::Vector3d(0, 1 - 0.15, 0)}));
+  out.push_back(makeFoot({Eigen::Vector3d(0, 1 + 0.15, 0)}));
+  out.push_back(makeFoot({Eigen::Vector3d(0.3, 1 - 0.15, 0)}));
+  out.push_back(makeFoot({Eigen::Vector3d(0.6, 1 + 0.15, 0)}));
+  out.push_back(makeFoot({Eigen::Vector3d(0.6, 1 - 0.15, 0)}));
+  out.push_back(makeFoot({Eigen::Vector3d(0.9, 1 + 0.15, 0.2)}));
+  out.push_back(makeFoot({Eigen::Vector3d(1.2, 1 - 0.15, 0.4)}));
+  out.push_back(makeFoot({Eigen::Vector3d(1.2, 1 + 0.15, 0.4)}));
+  return out;
+}();
+
+auto polygonsLineConfig = []()
+{
+  std::vector<std::vector<Eigen::Vector3d>> out;
+  out.push_back(makeFoot({Eigen::Vector3d(0, 2 - 0.15, 0)}));
+  out.push_back(makeFoot({Eigen::Vector3d(0, 2 + 0.15, 0)}));
+  out.push_back(makeFoot({Eigen::Vector3d(0.3, 2 - 0.15, 0)}));
+  out.push_back(makeFoot({Eigen::Vector3d(0.6, 2 + 0.15, 0)}));
+  out.push_back(makeFoot({Eigen::Vector3d(0.6, 2 - 0.15, 0)}));
+  out.push_back(makeFoot({Eigen::Vector3d(0.9, 2 + 0.15, 0.2)}));
+  out.push_back(makeFoot({Eigen::Vector3d(1.2, 2 - 0.15, 0.4)}));
+  out.push_back(makeFoot({Eigen::Vector3d(1.2, 2 + 0.15, 0.4)}));
+  return out;
+}();
+
 std::vector<Eigen::Vector3d> trajectory_ = {Eigen::Vector3d::UnitX(), Eigen::Vector3d::UnitY(),
                                             -Eigen::Vector3d::UnitX(), -Eigen::Vector3d::UnitY()};
 std::vector<sva::PTransformd> poseTrajectory_ = {{sva::RotX<double>(0), {1, 1, 1}},
@@ -292,6 +379,12 @@ void TestServer::setup()
                               [this]() {
                                 return lookAt({cos(t_), -1, sin(t_)}, {0, 0, 0}, Eigen::Vector3d::UnitZ());
                               }));
+  setup_3d_elements({"GUI Markers", "Polygons"}, mc_rtc::gui::Polygon("Single polygon", [this]() { return polygon; }),
+                    mc_rtc::gui::Polygon("Single polygon (color)", orange, [this]() { return polygonColor; }),
+                    mc_rtc::gui::Polygon("Single polygon (config)", pstyle, [this]() { return polygonLineConfig; }),
+                    mc_rtc::gui::Polygon("Polygons", [this]() { return polygons; }),
+                    mc_rtc::gui::Polygon("Polygons (color)", orange, [this]() { return polygonsColor; }),
+                    mc_rtc::gui::Polygon("Polygons (config)", pstyle, [this]() { return polygonsLineConfig; }));
   setup_3d_elements(
       {"Visual", "Ellipsoid"},
       mc_rtc::gui::Ellipsoid(

@@ -13,6 +13,7 @@ import { Label } from './widgets/Label';
 import { NumberInput } from './widgets/NumberInput';
 import { NumberSlider } from './widgets/NumberSlider';
 import { Point3D } from './widgets/Point3D';
+import { Polygon } from './widgets/Polygon';
 import { Rotation } from './widgets/Rotation';
 import { StringInput } from './widgets/StringInput';
 import { Trajectory } from './widgets/Trajectory';
@@ -27,6 +28,7 @@ import { Request } from './types/Request';
 import { PROTOCOL_VERSION } from './types/ProtocolVersion';
 
 import { ArrowConfig } from './types/ArrowConfig';
+import { Color } from './types/Color';
 import { ForceConfig } from './types/ForceConfig';
 import { LineConfig } from './types/LineConfig';
 import { PointConfig } from './types/PointConfig';
@@ -257,7 +259,38 @@ export class ControllerClient {
           break;
         }
         case Elements.Polygon: {
-          // FIXME Implement
+          const data = widget_data[3];
+          if (!Array.isArray(data)) {
+            console.error(`Expected to get array in Polygon but got ${JSON.stringify(data)}`);
+            break;
+          }
+          let config = new LineConfig();
+          if (widget_data.length > 4) {
+            if (widget_data[4].length == 4) {
+              config.color = new Color(widget_data[4]);
+            } else {
+              config = LineConfig.fromMessage(widget_data[4]);
+            }
+          }
+          const polys: THREE.Vector3[][] = [];
+          if (Array.isArray(data[0][0])) {
+            for (const polyIn of data) {
+              const poly: THREE.Vector3[] = [];
+              for (const p of polyIn) {
+                poly.push(new THREE.Vector3(p[0], p[1], p[2]));
+              }
+              poly.push(poly[0]);
+              polys.push(poly);
+            }
+          } else {
+            const poly: THREE.Vector3[] = [];
+            for (const p of data) {
+              poly.push(new THREE.Vector3(p[0], p[1], p[2]));
+            }
+            poly.push(poly[0]);
+            polys.push(poly);
+          }
+          cat.widget(Polygon, widget_name, sid, polys, config);
           break;
         }
         case Elements.PolyhedronTrianglesList: {
