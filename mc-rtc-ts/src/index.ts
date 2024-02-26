@@ -26,7 +26,7 @@ client_socket.on('data', (msg) => {
 });
 client_socket.on('error', (e) => {
   client.update([]);
-  console.log('nanomsg error:', JSON.stringify(e));
+  console.error('nanomsg error:', JSON.stringify(e));
 });
 client_socket.on('end', (url) => {
   console.log('finished', url);

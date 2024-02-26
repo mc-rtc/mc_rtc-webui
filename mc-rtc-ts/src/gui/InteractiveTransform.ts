@@ -62,7 +62,7 @@ export class InteractiveTransform {
         this.visual.position.y = pos[5];
         this.visual.position.z = pos[6];
       } else {
-        console.log(`${JSON.stringify(this)} requested position update with data of length ${pos.length}`);
+        console.error(`${JSON.stringify(this)} requested position update with data of length ${pos.length}`);
       }
     }
   }

@@ -14,6 +14,7 @@ import { NumberInput } from './widgets/NumberInput';
 import { NumberSlider } from './widgets/NumberSlider';
 import { Point3D } from './widgets/Point3D';
 import { Polygon } from './widgets/Polygon';
+import { Polyhedron } from './widgets/Polyhedron';
 import { Rotation } from './widgets/Rotation';
 import { StringInput } from './widgets/StringInput';
 import { Trajectory } from './widgets/Trajectory';
@@ -32,6 +33,7 @@ import { Color } from './types/Color';
 import { ForceConfig } from './types/ForceConfig';
 import { LineConfig } from './types/LineConfig';
 import { PointConfig } from './types/PointConfig';
+import { PolyhedronConfig } from './types/PolyhedronConfig';
 
 import { rbd_Visual } from './types/rbd_Visual';
 
@@ -183,7 +185,7 @@ export class ControllerClient {
           // pos is either [x, y, theta] or [x, y, theta, z]
           const pos: number[] = widget_data[3];
           if (pos.length < 3 || pos.length > 4) {
-            console.log(`${widget_name} provides ${pos.length} data but expected 3 or 4`);
+            console.error(`${widget_name} provides ${pos.length} data but expected 3 or 4`);
             break;
           }
           const ro: boolean = widget_data[4];
@@ -298,7 +300,29 @@ export class ControllerClient {
           break;
         }
         case Elements.PolyhedronVerticesTriangles: {
-          // FIXME Implement
+          const config = PolyhedronConfig.fromMessage(widget_data[5]);
+          const vertices: THREE.Vector3[] = [];
+          for (const p of widget_data[3]) {
+            vertices.push(new THREE.Vector3(...p));
+          }
+          const indices: number[] = [];
+          for (const triangle of widget_data[4]) {
+            indices.push(...triangle);
+          }
+          const colors: number[] = [];
+          if (widget_data.length > 6) {
+            for (const color of widget_data[6]) {
+              colors.push(...color);
+            }
+          } else {
+            for (let i = 0; i < vertices.length; ++i) {
+              colors.push(config.triangle_color.r);
+              colors.push(config.triangle_color.g);
+              colors.push(config.triangle_color.b);
+              colors.push(config.triangle_color.a);
+            }
+          }
+          cat.widget(Polyhedron, widget_name, sid, vertices, indices, colors, config);
           break;
         }
         case Elements.Schema: {

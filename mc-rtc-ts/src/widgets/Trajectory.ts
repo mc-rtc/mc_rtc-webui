@@ -9,20 +9,18 @@ import { LineConfig, LineStyle } from '../types/LineConfig';
 import { makeColor } from '../gui/utils';
 
 export class Trajectory extends Widget {
-  private scene: THREE.Scene;
   private visual: THREE.Line = null;
   private material: THREE.LineBasicMaterial | THREE.LineDashedMaterial = null;
   private points: THREE.Vector3[] = [];
 
   constructor(client: ControllerClient, category: string[], name: string, sid: number) {
     super(client, category, name, sid);
-    this.scene = client.gui.scene;
   }
 
   update(points: THREE.Vector3[], config: LineConfig) {
     if (!this.visual) {
       this.visual = new THREE.Line(new THREE.BufferGeometry(), null);
-      this.scene.add(this.visual);
+      this.client.gui.scene.add(this.visual);
     }
     if (config.style === LineStyle.Solid && !(this.material instanceof THREE.LineBasicMaterial)) {
       this.material = new THREE.LineBasicMaterial();
@@ -48,7 +46,7 @@ export class Trajectory extends Widget {
 
   cleanup() {
     if (this.visual) {
-      this.scene.remove(this.visual);
+      this.client.gui.scene.remove(this.visual);
     }
   }
 }

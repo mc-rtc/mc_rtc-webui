@@ -106,10 +106,6 @@ export class GUI {
     this.orbit = new OrbitControls(this.camera, this.canvas);
 
     this.loader = new GLTFLoader();
-    // this.loader.load('./models/head.gltf', (gltf) => {
-    //   console.log('Load head');
-    //   this.scene.add(gltf.scene);
-    // });
 
     this.scene.add(new THREE.HemisphereLight(0x8d7c7c, 0x494966, 3));
     this.addShadowedLight(1, 1, 1, 0xffffff, 3.5);

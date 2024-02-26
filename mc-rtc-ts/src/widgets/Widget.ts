@@ -16,7 +16,7 @@ export class Widget {
   name: string = '';
   sid: number = -1;
   visited: boolean = true;
-  draw(): void {}
+  draw?(): void;
   draw3d(): void {}
   update?(...args: any): void;
   cleanup(): void {}

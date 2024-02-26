@@ -66,7 +66,9 @@ export class Category extends Widget {
     for (let i = 0; i < this.widgets.length; ) {
       const w: Widget = this.widgets[i];
       if (w.sid == -1) {
-        w.draw();
+        if (w.draw) {
+          w.draw();
+        }
         ++i;
       } else {
         let j = i + 1;
@@ -76,11 +78,13 @@ export class Category extends Widget {
         ImGui.BeginTable(`${w.category}_table_${i}`, j - i, ImGui.ImGuiTableFlags.SizingStretchProp);
         for (; i < j; ++i) {
           ImGui.TableNextColumn();
-          this.widgets[i].draw();
+          if (this.widgets[i].draw) {
+            this.widgets[i].draw();
+          }
         }
         ImGui.EndTable();
       }
-      if (i != this.widgets.length) {
+      if (i != this.widgets.length && this.widgets[i].draw) {
         ImGui.Separator();
       }
     }

@@ -11,7 +11,6 @@ export class Mesh {
   private gltf: GLTF = null;
 
   constructor(gui: GUI, filename: string, scale: THREE.Vector3) {
-    console.log(`MESH CREATED: ${filename}`);
     this.gui = gui;
     this.group = new THREE.Group();
     this.update(filename, scale);
