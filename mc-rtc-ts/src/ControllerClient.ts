@@ -296,7 +296,27 @@ export class ControllerClient {
           break;
         }
         case Elements.PolyhedronTrianglesList: {
-          // FIXME Implement
+          const config = PolyhedronConfig.fromMessage(widget_data[4]);
+          const vertices: THREE.Vector3[] = [];
+          const indices: number[] = [];
+          const colors: number[] = [];
+          let vertices_i: number = 0;
+          for (const triangle of widget_data[3]) {
+            vertices.push(new THREE.Vector3(...triangle[0]));
+            vertices.push(new THREE.Vector3(...triangle[1]));
+            vertices.push(new THREE.Vector3(...triangle[2]));
+            if (widget_data.length > 5) {
+              const color = widget_data[5][vertices_i / 3];
+              colors.push(...color[0], ...color[1], ...color[2]);
+            } else {
+              colors.push(...config.triangle_color.data);
+              colors.push(...config.triangle_color.data);
+              colors.push(...config.triangle_color.data);
+            }
+            indices.push(vertices_i, vertices_i + 1, vertices_i + 2);
+            vertices_i += 3;
+          }
+          cat.widget(Polyhedron, widget_name, sid, vertices, indices, colors, config);
           break;
         }
         case Elements.PolyhedronVerticesTriangles: {
